@@ -39,6 +39,10 @@ func (v *Vector) Rotate(a float64){
   v.Y = math.Sin(a)*m
 }
 
+func (a *Vector) Distance(b *Vector) (float64) {
+  return a.Subtract(b).Mag()
+}
+
 /*
 The following is a solution to these parametric equations
   sStart.X + S*dS.X = mStart.X + M*dM.X
