@@ -61,23 +61,28 @@ func (v I2d) String() string {
 // until it is closed.
 func (a I2d) To(b I2d) <-chan I2d {
 	ch := make(chan I2d)
+	dx, dy := 1, 1
 	if b.X < a.X {
-		a.X, b.X = b.X, a.X
+		dx = -1
 	}
 	if b.Y < a.Y {
-		a.Y, b.Y = b.Y, a.Y
+		dy = -1
 	}
-	go ranger(a, b, ch)
+	go ranger(a, b, dx, dy, ch)
 	return ch
 }
 
-func ranger(a, b I2d, ch chan<- I2d) {
-	for x := a.X; x < b.X; x++ {
-		for y := a.Y; y < b.Y; y++ {
+func ranger(a, b I2d, dx, dy int, ch chan<- I2d) {
+	for x := a.X; x < b.X; x += dx {
+		for y := a.Y; y < b.Y; y += dy {
 			ch <- I2d{x, y}
 		}
 	}
 	close(ch)
+}
+
+func (a I2d) FromOrigin() <-chan I2d {
+	return I2d{0, 0}.To(a)
 }
 
 // Returns []I2d over every point from a (incluse) to b (exclusive).
