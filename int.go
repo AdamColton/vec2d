@@ -42,7 +42,7 @@ func (i I) Angle() float64 {
 	return math.Atan2(float64(i.Y), float64(i.X))
 }
 
-// Returns the magnitude (distance to origin) of the vector
+// Mag returns the magnitude (distance to origin) of the vector
 func (i I) Mag() float64 {
 	return i.F().Mag()
 }
@@ -82,6 +82,9 @@ func ranger(a, b I, dx, dy int, ch chan<- I) {
 	close(ch)
 }
 
+// FromOrigin returns a channel that will iterate over every point from a
+// (incluse) to b (exclusive). This opens a Go routine, so be sure to read from
+// the channel until it is closed.
 func (i I) FromOrigin() <-chan I {
 	return I{0, 0}.To(i)
 }

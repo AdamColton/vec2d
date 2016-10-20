@@ -104,9 +104,8 @@ func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
 			if dM.X == 0 {
 				if mStart.X == sStart.X && mStart.Y == sStart.Y {
 					return 0
-				} else {
-					return math.NaN()
 				}
+				return math.NaN()
 			}
 			if dS.Y == 0 {
 				return math.NaN()
@@ -133,7 +132,7 @@ func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
 	return math.NaN()
 }
 
-// Returns a point that is equadistant from all 3 points
+// Triangulate returns a point that is equadistant from all 3 points
 func Triangulate(a, b, c F) F {
 	abd := b.Y - a.Y
 	acd := c.Y - a.Y
@@ -144,10 +143,9 @@ func Triangulate(a, b, c F) F {
 			if (c.X+a.X)/2 == x {
 				// at least 2 points are identical
 				return F{x, 0}
-			} else {
-				// 3 unique points on a line, no equadistant point exists
-				return F{math.NaN(), math.NaN()}
 			}
+			// 3 unique points on a line, no equadistant point exists
+			return F{math.NaN(), math.NaN()}
 		}
 		acm := (a.X - c.X) / acd
 		acb := (c.X*c.X - a.X*a.X + c.Y*c.Y - a.Y*a.Y) / (2 * acd)

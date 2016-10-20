@@ -9,19 +9,19 @@ type P struct {
 	M, A float64
 }
 
-// Converts a Polar coordinate to a Cartesean coordinate
+// F converts a Polar coordinate to a Cartesean coordinate
 func (p P) F() F {
 	return F{math.Cos(p.A) * p.M, math.Sin(p.A) * p.M}
 }
 
-// Returns a + b
-func (a P) Add(b P) P {
-	return a.F().Add(b.F()).P()
+// Add returns p + p2
+func (p P) Add(p2 P) P {
+	return p.F().Add(p2.F()).P()
 }
 
-// Returns a + b
-func (a P) Subtract(b P) P {
-	return a.F().Subtract(b.F()).P()
+// Subtract returns p + p2
+func (p P) Subtract(p2 P) P {
+	return p.F().Subtract(p2.F()).P()
 }
 
 const deg2rad = math.Pi / 180
