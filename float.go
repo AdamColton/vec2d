@@ -5,81 +5,83 @@ import (
 	"math"
 )
 
-// F2d is a 2D float64 vector. It can be used to represent a point or the
+// F is a 2D float64 vector. It can be used to represent a point or the
 // difference between two points.
-type F2d struct {
+type F struct {
 	X, Y float64
 }
 
-// Returns a + b
-func (a F2d) Add(b F2d) F2d {
-	a.X += b.X
-	a.Y += b.Y
-	return a
+// Add returns f + f2
+func (f F) Add(f2 F) F {
+	f.X += f2.X
+	f.Y += f2.Y
+	return f
 }
 
-// Returns a - b
-func (a F2d) Subtract(b F2d) F2d {
-	a.X -= b.X
-	a.Y -= b.Y
-	return a
+// Subtract returns f - f2
+func (f F) Subtract(f2 F) F {
+	f.X -= f2.X
+	f.Y -= f2.Y
+	return f
 }
 
-// Returns FV{a.X * b.X, a.Y * b.Y}
-func (a F2d) Multiply(b F2d) F2d {
-	a.X *= b.X
-	a.Y *= b.Y
-	return a
+// Multiply returns F{f.X * f2.X, f.Y * f2.Y}
+func (f F) Multiply(f2 F) F {
+	f.X *= f2.X
+	f.Y *= f2.Y
+	return f
 }
 
-func (a F2d) ScalarMultiply(sclr float64) F2d {
-	a.X *= sclr
-	a.Y *= sclr
-	return a
+// ScalarMultiply returns F{f.X*sclr, f.Y*sclr}
+func (f F) ScalarMultiply(sclr float64) F {
+	f.X *= sclr
+	f.Y *= sclr
+	return f
 }
 
-// Returns the angle in radians
-func (v F2d) Angle() float64 {
-	return math.Atan2(v.Y, v.X)
+// Angle returns the angle in radians
+func (f F) Angle() float64 {
+	return math.Atan2(f.Y, f.X)
 }
 
-// Returns the magnitude (distance to origin) of the vector
-func (v F2d) Mag() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+// Mag returns the magnitude (distance to origin) of the vector
+func (f F) Mag() float64 {
+	return math.Sqrt(f.X*f.X + f.Y*f.Y)
 }
 
-// Returns a new Vector rotated by r radians
-func (v F2d) Rotate(r float64) F2d {
-	m := v.Mag()
-	r += v.Angle()
-	return F2d{math.Cos(r) * m, math.Sin(r) * m}
+// Rotate returns a new Vector rotated by r radians
+func (f F) Rotate(r float64) F {
+	m := f.Mag()
+	r += f.Angle()
+	return F{math.Cos(r) * m, math.Sin(r) * m}
 }
 
-// Returns the distance between to points
-func (a F2d) Distance(b F2d) float64 {
-	return a.Subtract(b).Mag()
+// Distance returns the distance between to points
+func (f F) Distance(f2 F) float64 {
+	return f.Subtract(f2).Mag()
 }
 
-// Converts a float64 vector to an int vector. Will always round down.
-func (v F2d) I2d() I2d {
-	return I2d{int(v.X), int(v.Y)}
+// I converts a float64 vector to an int vector. Will always round down.
+func (f F) I() I {
+	return I{int(f.X), int(f.Y)}
 }
 
-// Converts a float64 vector to a Polar vector
-func (v F2d) P() P {
-	return P{v.Mag(), v.Angle()}
+// P converts a float64 vector to a Polar vector
+func (f F) P() P {
+	return P{f.Mag(), f.Angle()}
 }
 
-// Fulfills Stringer, returns the vector as "(X, Y)"
-func (v F2d) String() string {
-	return fmt.Sprintf("(%f, %f)", v.X, v.Y)
+// String fulfills Stringer, returns the vector as "(X, Y)"
+func (f F) String() string {
+	return fmt.Sprintf("(%f, %f)", f.X, f.Y)
 }
 
-// Takes the motion path described by mStart t(0) and mEnd t(1) and finds the
-// time that the motion intersects the line segment described by sStart to sEnd.
-// If there is an intersection and it happens between t(0) and t(1), the value
-// will be returned, otherwise NaN will be returned
-func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F2d) float64 {
+// MotionSurfaceIntersection Takes the motion path described by mStart t(0) and
+// mEnd t(1) and finds the time that the motion intersects the line segment
+// described by sStart to sEnd. If there is an intersection and it happens
+// between t(0) and t(1), the value will be returned, otherwise NaN will be
+// returned
+func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
 	/*
 		The following is a solution to these parametric equations
 		  sStart.X + S*dS.X = mStart.X + M*dM.X
@@ -132,7 +134,7 @@ func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F2d) float64 {
 }
 
 // Returns a point that is equadistant from all 3 points
-func Triangulate(a, b, c F2d) F2d {
+func Triangulate(a, b, c F) F {
 	abd := b.Y - a.Y
 	acd := c.Y - a.Y
 
@@ -141,16 +143,16 @@ func Triangulate(a, b, c F2d) F2d {
 		if acd == 0 {
 			if (c.X+a.X)/2 == x {
 				// at least 2 points are identical
-				return F2d{x, 0}
+				return F{x, 0}
 			} else {
 				// 3 unique points on a line, no equadistant point exists
-				return F2d{math.NaN(), math.NaN()}
+				return F{math.NaN(), math.NaN()}
 			}
 		}
 		acm := (a.X - c.X) / acd
 		acb := (c.X*c.X - a.X*a.X + c.Y*c.Y - a.Y*a.Y) / (2 * acd)
 		y := acm*x + acb
-		return F2d{x, y}
+		return F{x, y}
 	}
 
 	if acd == 0 {
@@ -158,7 +160,7 @@ func Triangulate(a, b, c F2d) F2d {
 		abm := (a.X - b.X) / abd
 		abb := (b.X*b.X - a.X*a.X + b.Y*b.Y - a.Y*a.Y) / (2 * abd)
 		y := abm*x + abb
-		return F2d{x, y}
+		return F{x, y}
 	}
 
 	abm := (a.X - b.X) / abd
@@ -170,9 +172,9 @@ func Triangulate(a, b, c F2d) F2d {
 	d := (abm - acm)
 	if d == 0 {
 		// 3 unique points on a line, no equadistant point exists
-		return F2d{math.NaN(), math.NaN()}
+		return F{math.NaN(), math.NaN()}
 	}
 	x := (acb - abb) / d
 	y := abm*x + abb
-	return F2d{x, y}
+	return F{x, y}
 }

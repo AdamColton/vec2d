@@ -7,20 +7,20 @@ import (
 // Line is a parametric equation. It takes a value for t and returns a point
 // along the line. Using a parametric equation makes it easier to handle
 // vertical lines
-type Line func(t float64) F2d
+type Line func(t float64) F
 
 // LineTo returns a line where t=0 returns the from point and t=1 returns the to
 // point
-func (from F2d) LineTo(to F2d) Line {
+func (from F) LineTo(to F) Line {
 	d := to.Subtract(from)
-	return func(t float64) F2d { return F2d{from.X + d.X*t, from.Y + d.Y*t} }
+	return func(t float64) F { return F{from.X + d.X*t, from.Y + d.Y*t} }
 }
 
 // Returns a line that bisects points a and b. All points on the line are
 // equadistant from both a and b. At t=0, the mid-point is returned.
-func (a F2d) Bisect(b F2d) Line {
+func (a F) Bisect(b F) Line {
 	c := a.Add(b).ScalarMultiply(0.5)
-	d := c.Add(F2d{a.Y - b.Y, b.X - a.X})
+	d := c.Add(F{a.Y - b.Y, b.X - a.X})
 	return c.LineTo(d)
 }
 
