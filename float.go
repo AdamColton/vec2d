@@ -87,52 +87,14 @@ func (f F) String() string {
 // between t(0) and t(1), the value will be returned, otherwise NaN will be
 // returned
 func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
-	/*
-		The following is a solution to these parametric equations
-		  sStart.X + S*dS.X = mStart.X + M*dM.X
-		  sStart.Y + S*dS.Y = mStart.Y + M*dM.Y
-
-		  Most of the complexity arises from checking for zeros in denominators
-		  and using a different equation if they are found.
-	*/
-	dM := mEnd.Subtract(mStart)
-	dS := sEnd.Subtract(sStart)
-	var S, M float64
-	if dM.Y == 0 {
-		if dS.Y == 0 {
-			if mStart.Y != sStart.Y || dS.X == dM.X {
-				return math.NaN()
-			}
-			S = (mStart.X - sStart.X) / (dS.X - dM.X)
-			M = S
-		} else {
-			if dM.X == 0 {
-				if mStart.X == sStart.X && mStart.Y == sStart.Y {
-					return 0
-				}
-				return math.NaN()
-			}
-			if dS.Y == 0 {
-				return math.NaN()
-			}
-			S = (mStart.Y - sStart.Y) / dS.Y
-			M = (sStart.X + S*dS.X - mStart.X) / dM.X
-		}
-	} else {
-		if dS.Y == 0 {
-			M = (sStart.Y - mStart.Y) / dM.Y
-			S = (mStart.X + M*dM.X - sStart.X) / dS.X
-		} else {
-			if dM.X/dM.Y == dS.X/dS.Y {
-				//TODO slopes are parallel check which end it hits first
-				return math.NaN() //this isn't right, but it prevent an error and it's an edgecase
-			}
-			S = ((dM.X/dM.Y)*(sStart.Y-mStart.Y) - sStart.X + mStart.X) / (dS.X - (dM.X * dS.Y / dM.Y))
-			M = (sStart.Y + S*dS.Y - mStart.Y) / dM.Y
-		}
+	ml := mStart.LineTo(mEnd)
+	sl := sStart.LineTo(sEnd)
+	mi, si := ml.Intersection(sl)
+	if math.IsNaN(mi) {
+		return math.NaN()
 	}
-	if S >= 0 && S <= 1 && M >= 0 && M <= 1 {
-		return M
+	if mi >= 0 && mi <= 1 && si >= 0 && si <= 1 {
+		return mi
 	}
 	return math.NaN()
 }

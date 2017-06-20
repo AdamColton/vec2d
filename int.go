@@ -49,8 +49,28 @@ func (i I) InvIdx(idx int) I {
 	return I{x, idx / i.X}
 }
 
-func (i I) In(i2 I) bool {
-	return i.X >= 0 && i.X < i2.X && i.Y >= 0 && i.Y < i2.Y
+// In takes I.In(A, B) and returns true if I is between A (inclusive) and B
+// (exclusive)
+func (i I) In(a, b I) bool {
+	if a.X > b.X {
+		if i.X <= b.X || i.X > a.X {
+			return false
+		}
+	} else {
+		if i.X >= b.X || i.X < a.X {
+			return false
+		}
+	}
+	if a.Y > b.Y {
+		if i.Y <= b.Y || i.Y > a.Y {
+			return false
+		}
+	} else {
+		if i.Y >= b.Y || i.Y < a.Y {
+			return false
+		}
+	}
+	return true
 }
 
 // Mod performs a modulus operation so that the returned point is between the

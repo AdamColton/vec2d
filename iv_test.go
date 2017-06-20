@@ -43,3 +43,20 @@ func TestIdx(t *testing.T) {
 	p := size.InvIdx(idx)
 	assert.Equal(t, I{3, 4}, p)
 }
+
+func TestIn(t *testing.T) {
+	tests := []struct {
+		i, a, b  I
+		expected bool
+	}{
+		{I{1, 1}, I{0, 0}, I{2, 2}, true},
+		{I{0, 0}, I{0, 0}, I{2, 2}, true},
+		{I{2, 0}, I{0, 0}, I{2, 2}, false},
+		{I{0, 2}, I{0, 0}, I{2, 2}, false},
+		{I{2, 2}, I{2, 2}, I{0, 0}, true},
+		{I{0, 0}, I{2, 2}, I{0, 0}, false},
+	}
+	for _, test := range tests {
+		assert.Equal(t, test.expected, test.i.In(test.a, test.b))
+	}
+}
