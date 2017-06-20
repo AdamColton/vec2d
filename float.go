@@ -25,6 +25,11 @@ func (f F) Subtract(f2 F) F {
 	return f
 }
 
+// Area returns f.X*f.Y
+func (f F) Area() float64 {
+	return f.X * f.Y
+}
+
 // Multiply returns F{f.X * f2.X, f.Y * f2.Y}
 func (f F) Multiply(f2 F) F {
 	f.X *= f2.X
