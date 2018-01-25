@@ -1,8 +1,9 @@
 package vec2d
 
 import (
-	"fmt"
 	"math"
+	"strconv"
+	"strings"
 )
 
 // F is a 2D float64 vector. It can be used to represent a point or the
@@ -56,14 +57,18 @@ func (f F) Mag() float64 {
 
 // Rotate returns a new Vector rotated by r radians
 func (f F) Rotate(r float64) F {
-	m := f.Mag()
-	r += f.Angle()
-	return F{math.Cos(r) * m, math.Sin(r) * m}
+	p := P{f.Mag(), r + f.Angle()}
+	return p.F()
 }
 
 // Distance returns the distance between to points
 func (f F) Distance(f2 F) float64 {
 	return f.Subtract(f2).Mag()
+}
+
+// Distance returns the distance between to points
+func (f F) Cross(f2 F) float64 {
+	return f.X*f2.Y - f2.X*f.Y
 }
 
 // I converts a float64 vector to an int vector. Will always round down.
@@ -76,9 +81,18 @@ func (f F) P() P {
 	return P{f.Mag(), f.Angle()}
 }
 
+// Prec is the precision for the String method on F
+var Prec = 4
+
 // String fulfills Stringer, returns the vector as "(X, Y)"
 func (f F) String() string {
-	return fmt.Sprintf("(%f, %f)", f.X, f.Y)
+	return strings.Join([]string{
+		"(",
+		strconv.FormatFloat(f.X, 'f', Prec, 64),
+		", ",
+		strconv.FormatFloat(f.Y, 'f', Prec, 64),
+		")",
+	}, "")
 }
 
 // MotionSurfaceIntersection Takes the motion path described by mStart t(0) and
@@ -90,9 +104,6 @@ func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
 	ml := mStart.LineTo(mEnd)
 	sl := sStart.LineTo(sEnd)
 	mi, si := ml.Intersection(sl)
-	if math.IsNaN(mi) {
-		return math.NaN()
-	}
 	if mi >= 0 && mi <= 1 && si >= 0 && si <= 1 {
 		return mi
 	}
@@ -101,45 +112,16 @@ func MotionSurfaceIntersection(mStart, mEnd, sStart, sEnd F) float64 {
 
 // Triangulate returns a point that is equadistant from all 3 points
 func Triangulate(a, b, c F) F {
-	abd := b.Y - a.Y
-	acd := c.Y - a.Y
-
-	if abd == 0 {
-		x := (b.X + a.X) / 2
-		if acd == 0 {
-			if (c.X+a.X)/2 == x {
-				// at least 2 points are identical
-				return F{x, 0}
-			}
-			// 3 unique points on a line, no equadistant point exists
-			return F{math.NaN(), math.NaN()}
+	ab := a.Bisect(b)
+	ac := a.Bisect(c)
+	t, _ := ab.Intersection(ac)
+	if math.IsNaN(t) {
+		if a == b || b == c {
+			return a.Add(c).ScalarMultiply(0.5)
 		}
-		acm := (a.X - c.X) / acd
-		acb := (c.X*c.X - a.X*a.X + c.Y*c.Y - a.Y*a.Y) / (2 * acd)
-		y := acm*x + acb
-		return F{x, y}
+		if a == c {
+			return a.Add(b).ScalarMultiply(0.5)
+		}
 	}
-
-	if acd == 0 {
-		x := (c.X + a.X) / 2
-		abm := (a.X - b.X) / abd
-		abb := (b.X*b.X - a.X*a.X + b.Y*b.Y - a.Y*a.Y) / (2 * abd)
-		y := abm*x + abb
-		return F{x, y}
-	}
-
-	abm := (a.X - b.X) / abd
-	abb := (b.X*b.X - a.X*a.X + b.Y*b.Y - a.Y*a.Y) / (2 * abd)
-
-	acm := (a.X - c.X) / acd
-	acb := (c.X*c.X - a.X*a.X + c.Y*c.Y - a.Y*a.Y) / (2 * acd)
-
-	d := (abm - acm)
-	if d == 0 {
-		// 3 unique points on a line, no equadistant point exists
-		return F{math.NaN(), math.NaN()}
-	}
-	x := (acb - abb) / d
-	y := abm*x + abb
-	return F{x, y}
+	return ab(t)
 }

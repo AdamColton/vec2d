@@ -47,15 +47,27 @@ func (l Line) M() float64 {
 	return (p0.Y - p1.Y) / (p0.X - p1.X)
 }
 
+// Closest returns the point on the line closest to f
+func (l Line) Closest(f F) F {
+	p0 := l(0)
+	d := p0.Subtract(l(1))
+	dt := F{-d.Y, d.X} //tangent slope
+	l2 := f.LineTo(f.Add(dt))
+	t0, _ := l.Intersection(l2)
+	return l(t0)
+}
+
 // Intersection returns the points at which the lines intersect. Two values are
 // returned that indicate the index points at the line. If the lines do not
-// intersect, NaN will be returned for both values.
+// intersect, NaN will be returned for both values. If the lines are equivalent
+// NaN will be returned for both values because there is not a single
+// intersection point.
 func (l Line) Intersection(l2 Line) (float64, float64) {
 	a0, b0 := l(0), l2(0)
 	a1, b1 := l(1), l2(1)
 	da, db := a1.Subtract(a0), b1.Subtract(b0)
 
-	d := db.Y*da.X - da.Y*db.X
+	d := da.Cross(db)
 	if d == 0 {
 		// lines do not intersect
 		return math.NaN(), math.NaN()

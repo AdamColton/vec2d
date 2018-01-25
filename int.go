@@ -1,8 +1,9 @@
 package vec2d
 
 import (
-	"fmt"
 	"math"
+	"strconv"
+	"strings"
 )
 
 // I is a 2D int vector. It can be used to represent a point or the difference
@@ -101,6 +102,13 @@ func (i I) Mag() float64 {
 	return i.F().Mag()
 }
 
+// ScalarMultiply returns I{i.X*sclr, i.Y*sclr}
+func (i I) ScalarMultiply(sclr int) I {
+	i.X *= sclr
+	i.Y *= sclr
+	return i
+}
+
 // Distance returns the distance between to points
 func (i I) Distance(i2 I) float64 {
 	return i.Subtract(i2).Mag()
@@ -108,10 +116,16 @@ func (i I) Distance(i2 I) float64 {
 
 // String fulfills Stringer, returns the vector as "(X, Y)"
 func (i I) String() string {
-	return fmt.Sprintf("(%d, %d)", i.X, i.Y)
+	return strings.Join([]string{
+		"(",
+		strconv.FormatInt(int64(i.X), 10),
+		", ",
+		strconv.FormatInt(int64(i.Y), 10),
+		")",
+	}, "")
 }
 
-// SliceTo returns []I over every point from a (incluse) to b (exclusive).
+// SliceTo returns []I over every point from a (inclusive) to b (exclusive).
 func (i I) SliceTo(i2 I) []I {
 	d := i.Subtract(i2)
 	l := make([]I, 0, d.X*d.Y)
@@ -207,9 +221,7 @@ func (xi *XIterator) Next() (I, bool) {
 // point.
 func (xi *XIterator) Idx() int { return xi.idx }
 
-// FromOrigin returns a channel that will iterate over every point from a
-// (incluse) to b (exclusive). This opens a Go routine, so be sure to read from
-// the channel until it is closed.
+// FromOrigin returns an iterator from the origin (incluse) to i (exclusive).
 func (i I) FromOrigin() (IntIterator, I, bool) {
 	return I{0, 0}.To(i)
 }
