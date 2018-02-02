@@ -63,3 +63,31 @@ func TestIter(t *testing.T) {
 		assert.Equal(t, gen(iter.Pt()).(float64), f)
 	}
 }
+
+func TestFlood(t *testing.T) {
+	gen := func(pt vec2d.I) interface{} {
+		return pt.X < 2 && pt.Y < 2
+	}
+	g := New(vec2d.I{4, 4}, gen)
+
+	ds := []vec2d.I{
+		{-1, 0},
+		{1, 0},
+		{0, -1},
+		{0, 1},
+	}
+	pts := g.Flood(origin, ds, func(pt vec2d.I, g *Grid) bool {
+		return g.Get(pt).(bool)
+	})
+	assert.Len(t, pts, 4)
+
+	pts = g.Flood(vec2d.I{3, 3}, ds, func(pt vec2d.I, g *Grid) bool {
+		return g.Get(pt).(bool)
+	})
+	assert.Len(t, pts, 0)
+
+	pts = g.Flood(vec2d.I{3, 3}, ds, func(pt vec2d.I, g *Grid) bool {
+		return !g.Get(pt).(bool)
+	})
+	assert.Len(t, pts, 12)
+}

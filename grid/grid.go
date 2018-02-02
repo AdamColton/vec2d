@@ -49,3 +49,32 @@ func (g *Grid) Process(processor Processor) *Grid {
 
 	return out
 }
+
+func (g *Grid) Flood(start vec2d.I, dirs []vec2d.I, include func(pt vec2d.I, g *Grid) bool) []vec2d.I {
+	var ret []vec2d.I
+	seen := map[vec2d.I]bool{
+		start: true,
+	}
+	q := []vec2d.I{start}
+	for ln := len(q); ln > 0; ln = len(q) {
+		pt := q[ln-1]
+		q = q[:ln-1]
+		if !include(pt, g) {
+			continue
+		}
+
+		ret = append(ret, pt)
+		for _, d := range dirs {
+			dpt := pt.Add(d)
+			if !seen[dpt] {
+				seen[dpt] = true
+				if dpt.In(origin, g.Size) {
+					q = append(q, dpt)
+				}
+			}
+		}
+
+	}
+
+	return ret
+}
