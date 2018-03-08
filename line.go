@@ -85,3 +85,13 @@ func (l Line) Intersection(l2 Line) (float64, float64) {
 	ta := (b0.Y + db.Y*tb - a0.Y) / da.Y
 	return ta, tb
 }
+
+// F is an alias of Line to fulfil Path
+func (l Line) F(t float64) F {
+	return l(t)
+}
+
+// Tangent returns l, fulfils Path
+func (l Line) Tangent(t float64) Line {
+	return l
+}

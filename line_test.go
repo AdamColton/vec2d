@@ -87,3 +87,10 @@ func TestClosest(t *testing.T) {
 	p = l.Closest(F{-3, 1})
 	assert.Equal(t, F{0, 0}, p)
 }
+
+func TestLinePath(t *testing.T) {
+	var p Path
+	l := F{1, 2}.LineTo(F{1, 1})
+	p = l
+	assert.NotNil(t, p)
+}

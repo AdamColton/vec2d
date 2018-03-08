@@ -66,7 +66,7 @@ func (f F) Distance(f2 F) float64 {
 	return f.Subtract(f2).Mag()
 }
 
-// Distance returns the distance between to points
+// Cross returns the cross product of the two vectors
 func (f F) Cross(f2 F) float64 {
 	return f.X*f2.Y - f2.X*f.Y
 }

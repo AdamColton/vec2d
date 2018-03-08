@@ -41,6 +41,13 @@ func TestScalarMultiply(t *testing.T) {
 func TestAngle(t *testing.T) {
 	v := P{1, 1}.F()
 	assert.Equal(t, 1.0, v.Angle())
+
+	v = P{1, 2}.F()
+	assert.Equal(t, 2.0, v.Angle())
+
+	// An angle of 0 should be +X
+	v = P{1, 0}.F()
+	assert.Equal(t, F{1, 0}, v)
 }
 
 func TestSubtract(t *testing.T) {
