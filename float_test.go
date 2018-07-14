@@ -44,10 +44,6 @@ func TestAngle(t *testing.T) {
 
 	v = P{1, 2}.F()
 	assert.Equal(t, 2.0, v.Angle())
-
-	// An angle of 0 should be +X
-	v = P{1, 0}.F()
-	assert.Equal(t, F{1, 0}, v)
 }
 
 func TestSubtract(t *testing.T) {
@@ -140,4 +136,14 @@ func TestTriangulage(t *testing.T) {
 
 	p3 = F{2, 2}
 	assert.InDelta(t, 0, F{1, 1}.Distance(Triangulate(p1, p2, p3)), 1e-10)
+}
+
+func TestStandardFloat(t *testing.T) {
+	// An angle of 0 should be +X
+	assert.Equal(t, F{1, 0}, P{1, 0}.F())
+	assert.Equal(t, 0.0, F{1, 0}.Angle())
+	assert.Equal(t, Pi/2, F{0, 1}.Angle())
+
+	// 1/4 rotation should be +Y
+	assert.InDelta(t, 0.0, P{1, Pi / 2}.F().Distance(F{0, 1}), 1E-10)
 }

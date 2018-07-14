@@ -4,14 +4,23 @@ package vec2d
 // a 2D-float64 point
 type Curve func(t float64) F
 
-// Tangent takes a parametric point and returns the tangent line. For now, all
-// that matters is that the point is on the line and the slope is tangent, but
-// later there may be more requirements that t=0 and t=1 have meaning related to
-// the second derivative.
-type Tangent func(t float64) Line
+type Curver interface {
+	F(t float64) F
+}
 
 // A Path is a curve that can also return tangent lines
 type Path interface {
 	F(t float64) F
-	Tangent(t float64) Line
+
+	// Tangent takes a single parameter and returns a point that represents the
+	// tangent to the Path at the same parameter.
+	Tangent(t float64) F
+}
+
+func TangentLineFactory(p Path) func(t float64) Line {
+	return func(t float64) Line {
+		p0 := p.F(t)
+		p1 := p.Tangent(t).Add(p0)
+		return p0.LineTo(p1)
+	}
 }

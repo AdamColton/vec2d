@@ -6,10 +6,25 @@ import (
 	"strings"
 )
 
+type Fer interface {
+	F() F
+}
+
 // F is a 2D float64 vector. It can be used to represent a point or the
 // difference between two points.
 type F struct {
 	X, Y float64
+}
+
+// F allow F to fulfill Fer interface
+func (f F) F() F { return f }
+
+func FSlice(fs ...Fer) []F {
+	cfs := make([]F, len(fs))
+	for i, f := range fs {
+		cfs[i] = f.F()
+	}
+	return cfs
 }
 
 // Add returns f + f2

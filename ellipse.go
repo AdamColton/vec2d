@@ -4,33 +4,29 @@ import (
 	"math"
 )
 
-// Ellipse fulfills Path and describes an elliptic arc. Start defines where the
-// arc starts and Arc defines the arc length, in radians. Start defaults to 0
+// EllipseArc fulfills Path and describes an elliptic arc. Start defines where the
+// arc starts and Length defines the arc length, in radians. Start defaults to 0
 // which is the point on the arc that intersects the ray from foci-1 to foci-2
-type Ellipse struct {
-	Start, Arc float64
-	c          F       // center
-	sMa, sma   float64 // semi-major axis, semi-minor axis
-	a, as, ac  float64 // angle and it's sin, cos
+type EllipseArc struct {
+	Start, Length float64
+	c             F       // center
+	sMa, sma      float64 // semi-major axis, semi-minor axis
+	a, as, ac     float64 // angle and it's sin, cos
 }
 
 // F returns the float64 vector at t. Fulfills Path.
-func (e Ellipse) F(t float64) F {
-	return e.ByAngle((e.Arc)*t + e.Start).Add(e.c)
+func (e EllipseArc) F(t float64) F {
+	return e.ByAngle((e.Length)*t + e.Start).Add(e.c)
 }
 
 // Tangent returns a tangent line at t. Fulfills Path.
-func (e Ellipse) Tangent(t float64) Line {
-	t = (e.Arc)*t + e.Start
-
-	p0 := e.ByAngle(t).Add(e.c)
-	p1 := e.ByAngle(t + math.Pi/2).Add(p0)
-
-	return p0.LineTo(p1)
+func (e EllipseArc) Tangent(t float64) F {
+	t = (e.Length)*t + e.Start
+	return e.ByAngle(t + math.Pi/2)
 }
 
 // ByAngle returns the vector at the given angle relative to the center
-func (e Ellipse) ByAngle(a float64) F {
+func (e EllipseArc) ByAngle(a float64) F {
 	// https://en.wikipedia.org/wiki/Parametric_equation#Ellipse
 	st, ct := math.Sincos(a)
 	return F{
@@ -40,19 +36,19 @@ func (e Ellipse) ByAngle(a float64) F {
 }
 
 // Foci of the ellipse
-func (e Ellipse) Foci() (F, F) {
+func (e EllipseArc) Foci() (F, F) {
 	fociLen := math.Sqrt(e.sMa*e.sMa - e.sma*e.sma)
 	d := F{fociLen * e.ac, fociLen * e.as}
 	return e.c.Subtract(d), e.c.Add(d)
 }
 
 // Center of the ellipse
-func (e Ellipse) Center() F {
+func (e EllipseArc) Center() F {
 	return e.c
 }
 
 // Axis returns the lengths of the major and minor axis of the ellipse
-func (e Ellipse) Axis() (major, minor float64) {
+func (e EllipseArc) Axis() (major, minor float64) {
 	return e.sMa, e.sma
 }
 
@@ -61,10 +57,10 @@ func (e Ellipse) Axis() (major, minor float64) {
 // going from f1 to f2, which will lie along the minor axis. So an ellipse with
 // foci (0,0) and (0,2) with a minor radius of 1 will have angle 0 at point
 // (1,1).
-func NewEllipse(f1, f2 F, r float64) Ellipse {
-	e := Ellipse{
-		c:   f1.Add(f2).ScalarMultiply(0.5),
-		Arc: math.Pi * 2,
+func NewEllipseArc(f1, f2 F, r float64) EllipseArc {
+	e := EllipseArc{
+		c:      f1.Add(f2).ScalarMultiply(0.5),
+		Length: math.Pi * 2,
 	}
 	d := f2.Subtract(f1)
 	e.a = d.Angle()
@@ -74,4 +70,68 @@ func NewEllipse(f1, f2 F, r float64) Ellipse {
 	e.sMa = F{d.Mag(), 2 * r}.Mag() / 2
 
 	return e
+}
+
+type Ellipse struct {
+	perimeter EllipseArc
+}
+
+func NewEllipse(f1, f2 F, r float64) Ellipse {
+	return Ellipse{
+		perimeter: NewEllipseArc(f1, f2, r),
+	}
+}
+
+func (e Ellipse) F(t0, t1 float64) F {
+	t0 *= 0.5
+	p0, p1 := e.perimeter.F(t0), e.perimeter.F(1-t0)
+	l := p0.LineTo(p1)
+	return l(t1)
+}
+
+func (e Ellipse) Area() float64 {
+	a := e.SignedArea()
+	if a < 0 {
+		a = -a
+	}
+	return a
+}
+
+func (e Ellipse) SignedArea() float64 {
+	return e.perimeter.sMa * e.perimeter.sma * math.Pi
+}
+
+func (e Ellipse) Perimeter() float64 {
+	d, s := (e.perimeter.sMa - e.perimeter.sma), (e.perimeter.sMa + e.perimeter.sma)
+	h := (d * d) / (s * s)
+	p := 1 + ((3 * h) / (10 + math.Sqrt(4-3*h)))
+	p *= math.Pi * s
+	return p
+}
+
+func (e Ellipse) Centroid() F {
+	return e.perimeter.c
+}
+
+func (e Ellipse) Contains(f F) bool {
+	a := f.Subtract(e.perimeter.c).Angle() - e.perimeter.a
+	p := e.perimeter.ByAngle(a).Add(e.perimeter.c)
+
+	return e.perimeter.c.Distance(f) < e.perimeter.c.Distance(p)
+}
+
+func (e Ellipse) Arc() EllipseArc {
+	return e.perimeter
+}
+
+type Circle struct {
+	Ellipse
+}
+
+func NewCircle(c F, r float64) Circle {
+	return Circle{NewEllipse(c, c, r)}
+}
+
+func (c Circle) Radius() float64 {
+	return c.perimeter.sma
 }

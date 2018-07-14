@@ -11,7 +11,8 @@ type P struct {
 
 // F converts a Polar coordinate to a Cartesean coordinate
 func (p P) F() F {
-	return F{math.Cos(p.A) * p.M, math.Sin(p.A) * p.M}
+	s, c := math.Sincos(p.A)
+	return F{c * p.M, s * p.M}
 }
 
 // Add returns p + p2
@@ -24,7 +25,7 @@ func (p P) Subtract(p2 P) P {
 	return p.F().Subtract(p2.F()).P()
 }
 
-const deg2rad = math.Pi / 180
+const deg2rad = Pi / 180
 
 // Deg converts degrees to radians
 func Deg(d float64) float64 { return d * deg2rad }

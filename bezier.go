@@ -38,15 +38,19 @@ func NewBezierCurve(ps ...F) Curve {
 // Curve that would be described by the same points. The tangent curve is itself
 // a Bezier Curve.
 func NewBezierTangent(ps ...F) Curve {
+	qs := DiffPoints(ps...)
+	return NewBezierCurve(qs...)
+}
+
+func DiffPoints(ps ...F) []F {
 	l := len(ps) - 1
-	qs := make([]F, l)
+	dps := make([]F, l)
 	prev := ps[0]
 	for i, p := range ps[1:] {
-		qs[i] = p.Subtract(prev)
+		dps[i] = p.Subtract(prev)
 		prev = p
 	}
-
-	return NewBezierCurve(qs...)
+	return dps
 }
 
 // abuse F to compute binomialCo - this is a terrible idea, which is why it's
@@ -95,10 +99,9 @@ func (bp BezierPath) F(t float64) F {
 	return bp.curve(t)
 }
 
-// Tangent returns a tangent line at t. Fulfills Path.
-func (bp BezierPath) Tangent(t float64) Line {
-	p, pt := bp.curve(t), bp.tangent(t)
-	return p.LineTo(p.Add(pt))
+// Tangent does things and Fulfills Path.
+func (bp BezierPath) Tangent(t float64) F {
+	return bp.tangent(t)
 }
 
 // Points returns a copy of the points that define the curve.

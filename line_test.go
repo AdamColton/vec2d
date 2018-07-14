@@ -29,6 +29,13 @@ func TestBisect(t *testing.T) {
 		p := F{x, line(line.AtX(x)).Y}
 		assert.InDelta(t, p1.Distance(p)-p2.Distance(p), 0, 1e-10)
 	}
+
+	// Check directionality
+	// a --> b is +X
+	a, b := F{-1, 0}, F{1, 0}
+	line = a.Bisect(b)
+	// therefore +t of the line should be +Y
+	assert.Equal(t, F{0, 2}, line(1))
 }
 
 func TestLineIntersect(t *testing.T) {
@@ -93,4 +100,23 @@ func TestLinePath(t *testing.T) {
 	l := F{1, 2}.LineTo(F{1, 1})
 	p = l
 	assert.NotNil(t, p)
+}
+
+func TestLineSegments(t *testing.T) {
+	ls := LineSegments{
+		F{0, 0},
+		F{1, 1},
+		F{2, 0},
+		F{3, 1},
+		F{4, 0},
+	}
+	assert.Equal(t, ls[0], ls.F(0))
+	assert.Equal(t, F{0.5, 0.5}, ls.F(0.125))
+	assert.Equal(t, ls[1], ls.F(0.25))
+	assert.Equal(t, F{1.5, 0.5}, ls.F(0.375))
+	assert.Equal(t, ls[2], ls.F(0.5))
+	assert.Equal(t, F{2.5, 0.5}, ls.F(0.625))
+	assert.Equal(t, ls[3], ls.F(0.75))
+	assert.Equal(t, F{3.5, 0.5}, ls.F(0.875))
+	assert.Equal(t, ls[4], ls.F(1))
 }

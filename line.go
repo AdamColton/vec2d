@@ -92,6 +92,29 @@ func (l Line) F(t float64) F {
 }
 
 // Tangent returns l, fulfils Path
-func (l Line) Tangent(t float64) Line {
-	return l
+func (l Line) Tangent(t float64) F {
+	return l(1).Subtract(l(0))
+}
+
+type LineSegments []F
+
+func (ls LineSegments) F(t float64) F {
+	ln := len(ls)
+	if ln == 0 {
+		return F{}
+	}
+	if ln == 1 {
+		return ls[0]
+	}
+	if ln == 2 || t < 0 {
+		return ls[0].LineTo(ls[1])(t)
+	}
+	if t >= 1.0 {
+		return ls[ln-2].LineTo(ls[ln-1])(t)
+	}
+
+	// 4 points = 3 segments 0:2
+	ts := t * float64(ln-1)
+	ti := int(ts)
+	return ls[ti].LineTo(ls[ti+1])(ts - float64(ti))
 }
