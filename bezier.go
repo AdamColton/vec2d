@@ -5,18 +5,18 @@ import (
 )
 
 // NewBezierCurve returns a Bezier Curve defined by a list of control points
-func NewBezierCurve(ps ...F) Curve {
-	l := len(ps)
+func NewBezierCurve(points ...F) Curve {
+	l := len(points)
 	l64 := float64(l - 1)
 	return func(t float64) F {
 		if t == 1 {
-			return ps[l-1]
+			return points[l-1]
 		}
 		if t == 0 {
-			return ps[0]
+			return points[0]
 		}
 
-		// B(t) = ∑ binomialCo(l,i) * (1-t)^(l-i) * t^(i) * ps[i]
+		// B(t) = ∑ binomialCo(l,i) * (1-t)^(l-i) * t^(i) * points[i]
 		// let s = (1-t)^(l-i) * t^(i)
 		// then s[i] = s[i-1] * t/(1-t)
 		// and s[0] = (1-t) ^ l
@@ -25,7 +25,7 @@ func NewBezierCurve(ps ...F) Curve {
 		s := math.Pow(ti, l64)
 		sd := t / ti
 		var pt F
-		for i, p := range ps {
+		for i, p := range points {
 			b := binomialCo(l64, float64(i))
 			pt = pt.Add(p.ScalarMultiply(s * b))
 			s *= sd
@@ -37,16 +37,16 @@ func NewBezierCurve(ps ...F) Curve {
 // NewBezierTangent returns a function that returns the tangents of the Bezier
 // Curve that would be described by the same points. The tangent curve is itself
 // a Bezier Curve.
-func NewBezierTangent(ps ...F) Curve {
-	qs := DiffPoints(ps...)
+func NewBezierTangent(points ...F) Curve {
+	qs := DiffPoints(points...)
 	return NewBezierCurve(qs...)
 }
 
-func DiffPoints(ps ...F) []F {
-	l := len(ps) - 1
+func DiffPoints(points ...F) []F {
+	l := len(points) - 1
 	dps := make([]F, l)
-	prev := ps[0]
-	for i, p := range ps[1:] {
+	prev := points[0]
+	for i, p := range points[1:] {
 		dps[i] = p.Subtract(prev)
 		prev = p
 	}
