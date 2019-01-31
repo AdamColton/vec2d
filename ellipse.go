@@ -1,6 +1,7 @@
 package vec2d
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -87,6 +88,32 @@ func (e Ellipse) F(t0, t1 float64) F {
 	p0, p1 := e.perimeter.F(t0), e.perimeter.F(1-t0)
 	l := p0.LineTo(p1)
 	return l(t1)
+}
+
+var _ = fmt.Println
+
+func (e Ellipse) FillPath(t0 float64) Path {
+	// the t1=0 path traces the perimeter from t=1/8 to t=-1/8
+	//offset := (1.0 - 2*t0) / 8
+	//start := e.perimeter.F(offset)
+
+	// the foci will move from their original position at t0=0 out to touch the
+	// permiter when t0=1/2 then back to their original position when t0=1
+	f0, f1 := e.perimeter.Foci()
+	lt := 1 - math.Abs(1-2*t0) // t0==0 -> 0 ; t0==1/2 -> 1 ; t0==1 -> 0
+
+	f0 = f0.LineTo(e.perimeter.F(0.5))(lt)
+	f1 = f1.LineTo(e.perimeter.F(0))(lt)
+
+	r := (1 - 2*t0) * e.perimeter.sma
+	if r < 0 {
+		r = -r
+		f0, f1 = f1, f0
+	}
+
+	path := NewEllipseArc(f0, f1, r)
+	//return f0
+	return path
 }
 
 func (e Ellipse) Area() float64 {

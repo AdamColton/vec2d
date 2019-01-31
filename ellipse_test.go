@@ -73,3 +73,20 @@ func TestEllipseStandard(t *testing.T) {
 	// 1/4 rotation should be +Y
 	assert.InDelta(t, 0.0, e.F(0.25).Distance(F{0, 1}), 1E-10)
 }
+
+func TestAssertTypes(t *testing.T) {
+	var s Shape
+	s = NewCircle(F{5, 5}, 10)
+	s = Triangle{
+		F{1, 1},
+		F{2, 1},
+		F{2, 2},
+	}
+	s = NewEllipse(F{0, 0}, F{1, 0}, 1)
+	s = NewPolygon([]F{
+		F{1, 1},
+		F{2, 1},
+		F{2, 2},
+	})
+	_ = s
+}
