@@ -34,6 +34,26 @@ func (i I) Area() int {
 	return i.X * i.Y
 }
 
+func (i I) Multiply(i2 I) I {
+	i.X *= i2.X
+	i.Y *= i2.Y
+	return i
+}
+
+func (i I) Divide(i2 I) I {
+	i.X /= i2.X
+	i.Y /= i2.Y
+	return i
+}
+
+func (i I) Cross(i2 I) int {
+	return i.X*i2.Y - i2.X*i.Y
+}
+
+func (i I) Dot(i2 I) int {
+	return i.X*i2.X + i.Y*i2.Y
+}
+
 // Abs takes the Abs of X and Y
 func (i I) Abs() I {
 	if i.X < 0 {
