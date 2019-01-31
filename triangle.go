@@ -55,7 +55,8 @@ func (t Triangle) Centroid() F {
 }
 
 func (t Triangle) F(t0, t1 float64) F {
-	p0 := t[0].LineTo(t[1])(t0)
+	m := t[0].LineTo(t[1])(0.5)
+	p0 := t[0].LineTo(m)(t0)
 	p1 := t[2].LineTo(t[1])(t0)
 	return p0.LineTo(p1)(t1)
 }
