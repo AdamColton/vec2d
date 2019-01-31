@@ -53,6 +53,12 @@ func (f F) Multiply(f2 F) F {
 	return f
 }
 
+func (f F) Divide(f2 F) F {
+	f.X /= f2.X
+	f.Y /= f2.Y
+	return f
+}
+
 // ScalarMultiply returns F{f.X*sclr, f.Y*sclr}
 func (f F) ScalarMultiply(sclr float64) F {
 	f.X *= sclr
@@ -84,6 +90,10 @@ func (f F) Distance(f2 F) float64 {
 // Cross returns the cross product of the two vectors
 func (f F) Cross(f2 F) float64 {
 	return f.X*f2.Y - f2.X*f.Y
+}
+
+func (f F) Dot(f2 F) float64 {
+	return f.X*f2.X + f.Y*f2.Y
 }
 
 // I converts a float64 vector to an int vector. Will always round down.
