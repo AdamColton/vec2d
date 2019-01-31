@@ -34,7 +34,7 @@ func (f Formatter) Format(g *Grid) string {
 	}
 	widths := make([]int, g.Size.X)
 	strs := make([]string, g.Size.Area())
-	for iter, pt, ok := g.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		s := stringer(g.Get(pt))
 		strs[iter.Idx()] = s
 		if l := len([]rune(s)); l > widths[pt.X] {
@@ -47,7 +47,7 @@ func (f Formatter) Format(g *Grid) string {
 		widthFmt[i] = a(w)
 	}
 	var buf bytes.Buffer
-	for iter, pt, ok := g.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		if pt.X == 0 {
 			buf.WriteString("\n")
 		} else {

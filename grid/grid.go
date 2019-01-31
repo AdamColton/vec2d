@@ -5,7 +5,7 @@ import (
 )
 
 var origin vec2d.I
-var dirs = vec2d.I{-1, -1}.SliceTo(vec2d.I{2, 2})
+var dirs = vec2d.I{-1, -1}.To(vec2d.I{2, 2}).Slice()
 
 type Generator func(pt vec2d.I) interface{}
 
@@ -20,7 +20,7 @@ func New(size vec2d.I, generator Generator) *Grid {
 		Data: make([]interface{}, size.Area()),
 	}
 	if generator != nil {
-		for iter, pt, ok := g.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+		for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 			g.Data[iter.Idx()] = generator(pt)
 		}
 	}
@@ -43,7 +43,7 @@ func (g *Grid) Process(processor Processor) *Grid {
 		Data: make([]interface{}, g.Size.Area()),
 	}
 
-	for iter, pt, ok := g.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		out.Data[iter.Idx()] = processor(pt, g)
 	}
 

@@ -37,7 +37,7 @@ func Diamond(startSize vec2d.I, iterations int, noiseDecay float64) *Grid {
 	gen := newDiamondGenerator(startSize, iterations, 1.0, noiseDecay)
 
 	// populate the initial points
-	for iter, pt, ok := startSize.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := startSize.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		p2 := pt.ScalarMultiply(gen.scale)
 		idx := gen.size.Idx(p2)
 		gen.grid[idx] = rand.Float64()
@@ -116,7 +116,7 @@ func Gradient(start *Grid, iterations int) *Grid {
 	gen := newDiamondGenerator(start.Size, iterations, 0, 0)
 
 	// populate the initial points
-	for iter, pt, ok := start.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := start.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		p2 := pt.ScalarMultiply(gen.scale)
 		idx := gen.size.Idx(p2)
 		gen.grid[idx] = start.Get(pt).(float64)

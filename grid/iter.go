@@ -35,7 +35,7 @@ func (g *Grid) IterAll(i interface{}) *Iter {
 func (i *Iter) Next() bool {
 	var ok bool
 	if i.iter == nil {
-		i.iter, i.pt, ok = i.start.To(i.end)
+		i.iter, i.pt, ok = i.start.To(i.end).Start()
 	} else {
 		i.pt, ok = i.iter.Next()
 	}

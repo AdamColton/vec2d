@@ -14,7 +14,7 @@ func TestGrid(t *testing.T) {
 	}
 	g := New(size, generator)
 	assert.NotNil(t, g)
-	for iter, pt, ok := g.Size.FromOrigin(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		i, ok := g.Data[iter.Idx()].(int)
 		assert.True(t, ok)
 		assert.NotEqual(t, 0, i)
