@@ -65,6 +65,16 @@ func TestPolygonSurface(t *testing.T) {
 	}
 }
 
+func TestUnitSquareSurface(t *testing.T) {
+	// The surface function of the unit square should map to itself
+	unitSquare := Polygon{{0, 0}, {1, 0}, {1, 1}, {0, 1}}
+	i := I{101, 101}
+	i.FromOrigin().Each(func(idx int, i I) {
+		f := i.F().ScalarMultiply(0.01)
+		assert.InDelta(t, 0, f.Distance(unitSquare.F(f.X, f.Y)), 0.00001)
+	})
+}
+
 func TestRegularPolygonSideLength(t *testing.T) {
 	actual := RegularPolygonSideLength(F{}, 1, 0, 4)
 	expected := Polygon{F{0.5000, -0.5000}, {0.5000, 0.5000}, {-0.5000, 0.5000}, {-0.5000, -0.5000}}
@@ -79,4 +89,102 @@ func TestRegularPolygonRadius(t *testing.T) {
 	for i, p := range expected {
 		assert.InDelta(t, 0, p.Distance(actual[i]), 1E-10)
 	}
+}
+
+func TestCountAngles(t *testing.T) {
+	p := Polygon{{0, 0}, {1, 0}, {1, 1}, {0, 1}}
+	ccw, cw := p.CountAngles()
+	assert.Equal(t, 4, ccw)
+	assert.Equal(t, 0, cw)
+}
+
+func TestConvex(t *testing.T) {
+	tt := []struct {
+		Polygon Polygon
+		Convex  bool
+	}{
+		{
+			Polygon: Polygon{{0, 0}, {1, 0}, {1, 1}, {0, 1}},
+			Convex:  true,
+		},
+		{
+			Polygon: Polygon{{0, 0}, {0, 1}, {1, 1}, {1, 0}},
+			Convex:  true,
+		},
+		{
+			Polygon: Polygon{{0, 1}, {2, 2}, {1, 1}, {2, 0}},
+			Convex:  false,
+		},
+		{
+			Polygon: Polygon{{0, 0}, {1, 1}, {0, 2}, {2, 1}},
+			Convex:  false,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.Polygon.String(), func(t *testing.T) {
+			assert.Equal(t, tc.Convex, tc.Polygon.Convex())
+		})
+	}
+}
+
+func TestNonIntersecting(t *testing.T) {
+	tt := []struct {
+		Polygon         Polygon
+		NonIntersecting bool
+	}{
+		{
+			Polygon:         Polygon{{0, 0}, {1, 0}, {1, 1}},
+			NonIntersecting: true,
+		},
+		{
+			Polygon:         Polygon{{0, 0}, {1, 0}, {1, 1}, {0, 1}},
+			NonIntersecting: true,
+		},
+		{
+			Polygon:         Polygon{{0, 0}, {1, 1}, {1, 0}, {0, 1}},
+			NonIntersecting: false,
+		},
+		{
+			Polygon:         Polygon{{0, 1}, {0, 2}, {1, 0}, {2, 2}, {2, 1}},
+			NonIntersecting: false,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.Polygon.String(), func(t *testing.T) {
+			assert.Equal(t, tc.NonIntersecting, tc.Polygon.NonIntersecting())
+		})
+	}
+}
+
+func TestReverse(t *testing.T) {
+	tt := []struct {
+		p        Polygon
+		expected Polygon
+	}{
+		{
+			p:        Polygon{{0, 0}, {1, 0}, {1, 1}},
+			expected: Polygon{{1, 1}, {1, 0}, {0, 0}},
+		},
+		{
+			p:        Polygon{{0, 0}, {1, 0}, {1, 1}, {0, 1}},
+			expected: Polygon{{0, 1}, {1, 1}, {1, 0}, {0, 0}},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.p.String(), func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.p.Reverse())
+		})
+	}
+}
+
+func TestFindTriangles(t *testing.T) {
+	p := Polygon{{0, 0}, {2, 1}, {0, 2}, {1, 1}}
+	expected := [][3]int{
+		{1, 2, 3},
+		{0, 1, 3},
+	}
+	assert.Equal(t, expected, p.FindTriangles())
 }
