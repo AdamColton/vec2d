@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
+// Polygon represents a Convex Polygon and fulfills Shape.
 type Polygon []F
 
+// FillCurve returns a Curve segment of the Polygon Surface.
 func (p Polygon) FillCurve(t0 float64) Curve {
 	n := (len(p) - 1)
 	h := n - (n / 2) // half rounded up
@@ -18,10 +20,12 @@ func (p Polygon) FillCurve(t0 float64) Curve {
 	return Curve(a.LineTo(b))
 }
 
+// F fulfils Surface
 func (p Polygon) F(t0, t1 float64) F {
 	return p.FillCurve(t0)(t1)
 }
 
+// String lists the points as a string.
 func (p Polygon) String() string {
 	strs := make([]string, len(p))
 	for i, f := range p {
@@ -30,6 +34,7 @@ func (p Polygon) String() string {
 	return strings.Join(strs, ":")
 }
 
+// SignedArea returns the Area and may be negative depending on the polarity.
 func (p Polygon) SignedArea() float64 {
 	var s float64
 	prev := p[len(p)-1]
@@ -40,10 +45,12 @@ func (p Polygon) SignedArea() float64 {
 	return s / 2
 }
 
+// Area of the polygon
 func (p Polygon) Area() float64 {
 	return math.Abs(p.SignedArea())
 }
 
+// Centroid returns the center of mass of the polygon
 func (p Polygon) Centroid() F {
 	var x, y, a float64
 	prev := p[len(p)-1]
@@ -58,6 +65,7 @@ func (p Polygon) Centroid() F {
 	return F{x * a, y * a}
 }
 
+// Contains returns true of the point f is inside of the polygon
 func (p Polygon) Contains(f F) bool {
 	// https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm
 	ray := f.LineTo(f.Add(F{1, 0}))
@@ -132,11 +140,14 @@ func (p Polygon) CountAngles() (int, int) {
 	return ccw, cw
 }
 
+// Convex returns True if the polygon contains a convex angle.
 func (p Polygon) Convex() bool {
 	ccw, cw := p.CountAngles()
 	return ccw == 0 || cw == 0
 }
 
+// CounterClockwise returns true if the points defining the polygon proceed
+// counterclockwise.
 func (p Polygon) CounterClockwise() bool {
 	var sum float64
 
@@ -247,6 +258,7 @@ func (p Polygon) NonIntersecting() bool {
 	return true
 }
 
+// Reverse the order of the points defining the polygon
 func (p Polygon) Reverse() Polygon {
 	out := make([]F, len(p))
 	l := len(p) - 1
@@ -273,13 +285,19 @@ func NewPolygon(vertexes []F) Polygon {
 }
 
 // PolarPolygon is useful in constructing a Polygon when the order of the
-// vertexes is not known.
+// vertexes is not known. It does not fulfill shape.
 type PolarPolygon []P
 
-func (p PolarPolygon) Len() int           { return len(p) }
-func (p PolarPolygon) Less(i, j int) bool { return p[i].A < p[j].A }
-func (p PolarPolygon) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+// Len returns the number of points, fulfills sort.Interface
+func (p PolarPolygon) Len() int { return len(p) }
 
+// Less fulfills sort.Interface
+func (p PolarPolygon) Less(i, j int) bool { return p[i].A < p[j].A }
+
+// Swap fulfills sort.Interface
+func (p PolarPolygon) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+
+// Polygon converts the PolarPolygon to a Polygon
 func (p PolarPolygon) Polygon(center F) Polygon {
 	sort.Sort(p)
 	ply := make(Polygon, len(p))
@@ -289,7 +307,9 @@ func (p PolarPolygon) Polygon(center F) Polygon {
 	return ply
 }
 
-func Rectangle2Points(p1, p2 F) Polygon {
+// RectangleToPoints takes two points and returns a Polygon representing a
+// rectangle.
+func RectangleToPoints(p1, p2 F) Polygon {
 	return Polygon{
 		p1,
 		F{p2.X, p1.Y},
@@ -298,6 +318,8 @@ func Rectangle2Points(p1, p2 F) Polygon {
 	}
 }
 
+// RectanglePointWidthLength takes one point, a width and a length and returns
+// a Polygon rectangle.
 func RectanglePointWidthLength(point F, width, length float64) Polygon {
 	return Polygon{
 		point,
@@ -307,6 +329,8 @@ func RectanglePointWidthLength(point F, width, length float64) Polygon {
 	}
 }
 
+// RegularPolygonRadius constructs a regular polygon. The radius is measured
+// from the center of each side.
 func RegularPolygonRadius(center F, radius, angle float64, sides int) Polygon {
 	ps := make(Polygon, sides)
 	p := P{radius, angle}
@@ -325,7 +349,8 @@ const (
 
 var rpclC = math.Sin(Pi/2) / (2)
 
-// RegularPolygonSideLength
+// RegularPolygonSideLength constructs a regular polygon defined by the length
+// of the sides.
 func RegularPolygonSideLength(center F, sideLength, angle float64, sides int) Polygon {
 	// A right triangle is formed with the hypotenuse being length r (which we
 	// want to find), one angle being 360°/(2n) and the opposite side being length
@@ -342,12 +367,16 @@ func RegularPolygonSideLength(center F, sideLength, angle float64, sides int) Po
 	return RegularPolygonRadius(center, r, angle, sides)
 }
 
+// ConcavePolygon represents a Polygon with at least one concave angle.
 type ConcavePolygon struct {
 	concave   Polygon
 	regular   Polygon
 	triangles [][2]Triangle
 }
 
+// GetTriangles takes triangle indexes from FindTriangles and returns a slice
+// of triangles. This can be used to map one polygon to another with the same
+// number of sides.
 func GetTriangles(triangles [][3]int, p Polygon) []Triangle {
 	ts := make([]Triangle, len(triangles))
 	for i, t := range triangles {
@@ -358,6 +387,7 @@ func GetTriangles(triangles [][3]int, p Polygon) []Triangle {
 	return ts
 }
 
+// NewConcavePolygon converts a Polygon to a ConcavePolygon
 func NewConcavePolygon(concave Polygon) ConcavePolygon {
 	regular := RegularPolygonRadius(F{}, 1, 0, len(concave))
 	tIdxs := concave.FindTriangles()
@@ -376,6 +406,7 @@ func NewConcavePolygon(concave Polygon) ConcavePolygon {
 	}
 }
 
+// F fulfils Surface
 func (c ConcavePolygon) F(t0, t1 float64) F {
 	f := c.regular.F(t0, t1)
 
@@ -400,8 +431,17 @@ func (c ConcavePolygon) F(t0, t1 float64) F {
 	return F{}
 }
 
-func (p ConcavePolygon) Area() float64       { return p.concave.Area() }
+// Area of the polygon
+func (p ConcavePolygon) Area() float64 { return p.concave.Area() }
+
+// SignedArea returns the Area and may be negative depending on the polarity.
 func (p ConcavePolygon) SignedArea() float64 { return p.concave.SignedArea() }
-func (p ConcavePolygon) Perimeter() float64  { return p.concave.Perimeter() }
-func (p ConcavePolygon) Contains(f F) bool   { return p.concave.Contains(f) }
-func (p ConcavePolygon) Centroid() F         { return p.concave.Centroid() }
+
+// Perimeter returns the total length of the perimeter
+func (p ConcavePolygon) Perimeter() float64 { return p.concave.Perimeter() }
+
+// Contains returns true of the point f is inside of the polygon
+func (p ConcavePolygon) Contains(f F) bool { return p.concave.Contains(f) }
+
+// Centroid returns the center of mass of the polygon
+func (p ConcavePolygon) Centroid() F { return p.concave.Centroid() }
