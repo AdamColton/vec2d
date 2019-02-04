@@ -94,6 +94,19 @@ func TestTriangleTransform(t *testing.T) {
 				F{1, 0},
 			},
 		},
+		// confirm 3 points in a line don't cause an error
+		{
+			a: Triangle{
+				F{0, 0},
+				F{1, 0},
+				F{0, 1},
+			},
+			b: Triangle{
+				F{1, 0},
+				F{2, 0},
+				F{3, 0},
+			},
+		},
 	}
 
 	for _, tc := range tt {

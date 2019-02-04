@@ -53,8 +53,8 @@ func (e EllipseArc) Axis() (major, minor float64) {
 	return e.sMa, e.sma
 }
 
-// NewEllipse returns an ellipse with foci f1 and f2 and a minor radius of r.
-// The perimeter point that corresponds to an angle of 0 will be 1/4 rotation
+// NewEllipseArc returns an EllipseArc with foci f1 and f2 and a minor radius of
+// r. The perimeter point that corresponds to an angle of 0 will be 1/4 rotation
 // going from f1 to f2, which will lie along the minor axis. So an ellipse with
 // foci (0,0) and (0,2) with a minor radius of 1 will have angle 0 at point
 // (1,1).
@@ -73,10 +73,16 @@ func NewEllipseArc(f1, f2 F, r float64) EllipseArc {
 	return e
 }
 
+// Ellipse fulfills Shape
 type Ellipse struct {
 	perimeter EllipseArc
 }
 
+// NewEllipse returns an Ellipse with foci f1 and f2 and a minor radius of r.
+// The perimeter point that corresponds to an angle of 0 will be 1/4 rotation
+// going from f1 to f2, which will lie along the minor axis. So an ellipse with
+// foci (0,0) and (0,2) with a minor radius of 1 will have angle 0 at point
+// (1,1).
 func NewEllipse(f1, f2 F, r float64) Ellipse {
 	return Ellipse{
 		perimeter: NewEllipseArc(f1, f2, r),
@@ -84,37 +90,28 @@ func NewEllipse(f1, f2 F, r float64) Ellipse {
 }
 
 func (e Ellipse) F(t0, t1 float64) F {
-	t0 *= 0.5
-	p0, p1 := e.perimeter.F(t0), e.perimeter.F(1-t0)
-	l := p0.LineTo(p1)
-	return l(t1)
+	f0, f1 := e.perimeter.Foci()
+	tFrom := Triangle{
+		e.perimeter.F(1.0 / 8.0),
+		e.perimeter.F(3.0 / 8.0),
+		f0.Bisect(f1)(0.5),
+	}
+
+	//0 ==> 1/8  0.5 ==> 0  1 ==> -1/8
+	t0 = t0*-0.25 + 0.125
+
+	tTo := Triangle{
+		e.perimeter.F(t0),
+		e.perimeter.F(0.5 - t0),
+		f0.Bisect(f1)(t0 * 4),
+	}
+	tfrm, _ := TriangleTransform(tFrom, tTo)
+
+	t1 = (t1 / 4.0) + (1.0 / 8.0)
+	return tfrm.Apply(e.perimeter.F(t1))
 }
 
 var _ = fmt.Println
-
-func (e Ellipse) FillPath(t0 float64) Path {
-	// the t1=0 path traces the perimeter from t=1/8 to t=-1/8
-	//offset := (1.0 - 2*t0) / 8
-	//start := e.perimeter.F(offset)
-
-	// the foci will move from their original position at t0=0 out to touch the
-	// permiter when t0=1/2 then back to their original position when t0=1
-	f0, f1 := e.perimeter.Foci()
-	lt := 1 - math.Abs(1-2*t0) // t0==0 -> 0 ; t0==1/2 -> 1 ; t0==1 -> 0
-
-	f0 = f0.LineTo(e.perimeter.F(0.5))(lt)
-	f1 = f1.LineTo(e.perimeter.F(0))(lt)
-
-	r := (1 - 2*t0) * e.perimeter.sma
-	if r < 0 {
-		r = -r
-		f0, f1 = f1, f0
-	}
-
-	path := NewEllipseArc(f0, f1, r)
-	//return f0
-	return path
-}
 
 func (e Ellipse) Area() float64 {
 	a := e.SignedArea()
