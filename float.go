@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Fer represents anything that can return an F taking no arguments
 type Fer interface {
 	F() F
 }
@@ -18,14 +19,6 @@ type F struct {
 
 // F allow F to fulfill Fer interface
 func (f F) F() F { return f }
-
-func FSlice(fs ...Fer) []F {
-	cfs := make([]F, len(fs))
-	for i, f := range fs {
-		cfs[i] = f.F()
-	}
-	return cfs
-}
 
 // Add returns f + f2
 func (f F) Add(f2 F) F {
@@ -53,6 +46,8 @@ func (f F) Multiply(f2 F) F {
 	return f
 }
 
+// Divide the values in one F by another. Does not check for zeros in
+// denominator.
 func (f F) Divide(f2 F) F {
 	f.X /= f2.X
 	f.Y /= f2.Y
@@ -92,6 +87,7 @@ func (f F) Cross(f2 F) float64 {
 	return f.X*f2.Y - f2.X*f.Y
 }
 
+// Dot returns the dot product of two vectors
 func (f F) Dot(f2 F) float64 {
 	return f.X*f2.X + f.Y*f2.Y
 }
