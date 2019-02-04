@@ -8,18 +8,18 @@ import (
 
 type Polygon []F
 
-func (p Polygon) FillLine(t0 float64) Line {
+func (p Polygon) FillCurve(t0 float64) Curve {
 	n := (len(p) - 1)
 	h := n - (n / 2) // half rounded up
 	as := LineSegments(p[0:h])
 	bs := LineSegments(p[h:])
 	a := as.F(t0)
 	b := bs.F(1 - t0)
-	return a.LineTo(b)
+	return Curve(a.LineTo(b))
 }
 
 func (p Polygon) F(t0, t1 float64) F {
-	return p.FillLine(t0)(t1)
+	return p.FillCurve(t0)(t1)
 }
 
 func (p Polygon) String() string {
