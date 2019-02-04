@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Ier represents anything that can return an I taking no parameters.
 type Ier interface {
 	I() I
 }
@@ -34,22 +35,26 @@ func (i I) Area() int {
 	return i.X * i.Y
 }
 
+// Multiply two I together
 func (i I) Multiply(i2 I) I {
 	i.X *= i2.X
 	i.Y *= i2.Y
 	return i
 }
 
+// Divide first I by the argument I - does not check for zeros in denominator.
 func (i I) Divide(i2 I) I {
 	i.X /= i2.X
 	i.Y /= i2.Y
 	return i
 }
 
+// Cross returns the cross product.
 func (i I) Cross(i2 I) int {
 	return i.X*i2.Y - i2.X*i.Y
 }
 
+// Dot returns the dot product
 func (i I) Dot(i2 I) int {
 	return i.X*i2.X + i.Y*i2.Y
 }
