@@ -96,8 +96,10 @@ func (l Line) Tangent(t float64) F {
 	return l(1).Subtract(l(0))
 }
 
+// LineSegments links together a series of points and fulfils Curve.
 type LineSegments []F
 
+// F fulfills Curve on LineSegments
 func (ls LineSegments) F(t float64) F {
 	ln := len(ls)
 	if ln == 0 {
