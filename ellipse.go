@@ -1,7 +1,6 @@
 package vec2d
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -89,7 +88,9 @@ func NewEllipse(f1, f2 F, r float64) Ellipse {
 	}
 }
 
-func (e Ellipse) F(t0, t1 float64) F {
+// FillCurve returns a curve that lies inside of the ellipse. All curves in the
+// range 0.0 to 1.0 will fill the entire ellipse.
+func (e Ellipse) FillCurve(t float64) Curve {
 	f0, f1 := e.perimeter.Foci()
 	tFrom := Triangle{
 		e.perimeter.F(1.0 / 8.0),
@@ -98,21 +99,28 @@ func (e Ellipse) F(t0, t1 float64) F {
 	}
 
 	//0 ==> 1/8  0.5 ==> 0  1 ==> -1/8
-	t0 = t0*-0.25 + 0.125
+	t = t*-0.25 + 0.125
 
 	tTo := Triangle{
-		e.perimeter.F(t0),
-		e.perimeter.F(0.5 - t0),
-		f0.Bisect(f1)(t0 * 4),
+		e.perimeter.F(t),
+		e.perimeter.F(0.5 - t),
+		f0.Bisect(f1)(t * 4),
 	}
 	tfrm, _ := TriangleTransform(tFrom, tTo)
 
-	t1 = (t1 / 4.0) + (1.0 / 8.0)
-	return tfrm.Apply(e.perimeter.F(t1))
+	return func(t float64) F {
+		t = (t / 4.0) + (1.0 / 8.0)
+		return tfrm.Apply(e.perimeter.F(t))
+	}
 }
 
-var _ = fmt.Println
+// F fulfils Surface taking two parametric points and returning a point in the
+// ellipse.
+func (e Ellipse) F(t0, t1 float64) F {
+	return e.FillCurve(t0)(t1)
+}
 
+// Area returns the area of the Ellipse
 func (e Ellipse) Area() float64 {
 	a := e.SignedArea()
 	if a < 0 {
@@ -121,10 +129,14 @@ func (e Ellipse) Area() float64 {
 	return a
 }
 
+// SignedArea returns the area of the ellipse, though the value may be negative
+// depending on polarity.
 func (e Ellipse) SignedArea() float64 {
 	return e.perimeter.sMa * e.perimeter.sma * math.Pi
 }
 
+// Perimeter returns the length of the perimeter of the ellipse. This value may
+// have a slight error that will grow as the ellipse is elongated.
 func (e Ellipse) Perimeter() float64 {
 	d, s := (e.perimeter.sMa - e.perimeter.sma), (e.perimeter.sMa + e.perimeter.sma)
 	h := (d * d) / (s * s)
@@ -133,10 +145,12 @@ func (e Ellipse) Perimeter() float64 {
 	return p
 }
 
+// Centroid returns the center of the ellipse
 func (e Ellipse) Centroid() F {
 	return e.perimeter.c
 }
 
+// Contains returns true of the point f is contained in the ellipse
 func (e Ellipse) Contains(f F) bool {
 	a := f.Subtract(e.perimeter.c).Angle() - e.perimeter.a
 	p := e.perimeter.ByAngle(a).Add(e.perimeter.c)
@@ -144,18 +158,54 @@ func (e Ellipse) Contains(f F) bool {
 	return e.perimeter.c.Distance(f) < e.perimeter.c.Distance(p)
 }
 
+// Arc returns the EllipseArc defined by the perimeter
 func (e Ellipse) Arc() EllipseArc {
 	return e.perimeter
 }
 
+// Circle fulfills Shape.
 type Circle struct {
-	Ellipse
+	e Ellipse
 }
 
-func NewCircle(c F, r float64) Circle {
-	return Circle{NewEllipse(c, c, r)}
+// NewCircle returns a circle defined by a center and radius
+func NewCircle(center F, radius float64) Circle {
+	return Circle{e: NewEllipse(center, center, radius)}
 }
 
+// Radius returns the radius of the circle
 func (c Circle) Radius() float64 {
-	return c.perimeter.sma
+	return c.e.perimeter.sma
 }
+
+// FillCurve returns a curve that lies inside of the circle. All curves in the
+// range 0.0 to 1.0 will fill the entire circle.
+func (c Circle) FillCurve(t float64) Curve { return c.e.FillCurve(t) }
+
+// F returns the float64 vector at t. Fulfills Path.
+func (c Circle) F(t0, t1 float64) F { return c.e.F(t0, t1) }
+
+// Area returns the area of the circle
+func (c Circle) Area() float64 {
+	return c.e.perimeter.sma * c.e.perimeter.sma * math.Pi
+}
+
+// SignedArea returns the area of the ellipse, though the value may be negative
+// depending on polarity.
+func (c Circle) SignedArea() float64 { return c.e.SignedArea() }
+
+// Perimeter length of the circle
+func (c Circle) Perimeter() float64 {
+	return 2 * c.e.perimeter.sma * math.Pi
+}
+
+// Contains returns true of the point f is contained in the ellipse
+func (c Circle) Contains(f F) bool {
+	return c.e.perimeter.c.Distance(f) <= c.e.perimeter.sma
+}
+
+// Centroid returns the center of the circle
+func (c Circle) Centroid() F { return c.e.perimeter.c }
+
+// Arc returns the EllipseArc that represent the perimeter of the circle
+func (c Circle) Arc() EllipseArc { return c.e.perimeter }
