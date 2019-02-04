@@ -42,6 +42,9 @@ func NewBezierTangent(points ...F) Curve {
 	return NewBezierCurve(qs...)
 }
 
+// DiffPoints takes a list of points and returns the difference between each. So
+// the first value returned will be points[0].Subtrace(points[1]). This also
+// means the returned slice will be one less than the values given.
 func DiffPoints(points ...F) []F {
 	l := len(points) - 1
 	dps := make([]F, l)
