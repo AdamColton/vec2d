@@ -1,11 +1,13 @@
 package vec2d
 
+// Transformation can scale, skew, rotate and translate 2D points.
 type Transformation struct {
 	Translation F
 	X           F
 	Y           F
 }
 
+// Apply the Transformation to point F
 func (t Transformation) Apply(f F) F {
 	return F{
 		X: f.X*t.X.X + f.Y*t.Y.X + t.Translation.X,
@@ -74,8 +76,11 @@ D3 = 1 - ST
 p = (RT - U) / D3
 */
 
+// CouldNotResolveErr is returned if a TriangleTransform cannot resolve one of
+// the axis.
 type CouldNotResolveErr string
 
+// Error fulfils the error interface
 func (c CouldNotResolveErr) Error() string {
 	return string(c)
 }
