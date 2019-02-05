@@ -11,7 +11,7 @@ type Curver interface {
 
 // A Path is a curve that can also return tangent lines
 type Path interface {
-	F(t float64) F
+	Curver
 
 	// Tangent takes a single parameter and returns a point that represents the
 	// tangent to the Path at the same parameter.
