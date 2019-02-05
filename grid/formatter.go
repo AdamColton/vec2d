@@ -27,7 +27,7 @@ func defaultStringer(i interface{}) string {
 	return fmt.Sprint(i)
 }
 
-func (f Formatter) Format(g *Grid) string {
+func (f Formatter) Format(g *DenseGrid) string {
 	stringer := f.Stringer
 	if stringer == nil {
 		stringer = defaultStringer

@@ -6,14 +6,14 @@ import (
 )
 
 type Iter struct {
-	g              *Grid
+	g              *DenseGrid
 	iter           vec2d.IntIterator
 	start, end, pt vec2d.I
 	i              interface{}
 	t              reflect.Type
 }
 
-func (g *Grid) Iter(start, end vec2d.I, i interface{}) *Iter {
+func (g *DenseGrid) Iter(start, end vec2d.I, i interface{}) *Iter {
 	t := reflect.TypeOf(i)
 	if t.Kind() != reflect.Ptr {
 		panic("Iter requires a pointer")
@@ -28,7 +28,7 @@ func (g *Grid) Iter(start, end vec2d.I, i interface{}) *Iter {
 	}
 }
 
-func (g *Grid) IterAll(i interface{}) *Iter {
+func (g *DenseGrid) IterAll(i interface{}) *Iter {
 	return g.Iter(origin, g.Size, i)
 }
 

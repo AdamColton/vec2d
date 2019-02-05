@@ -9,13 +9,13 @@ var dirs = vec2d.I{-1, -1}.To(vec2d.I{2, 2}).Slice()
 
 type Generator func(pt vec2d.I) interface{}
 
-type Grid struct {
+type DenseGrid struct {
 	Size vec2d.I
 	Data []interface{}
 }
 
-func New(size vec2d.I, generator Generator) *Grid {
-	g := &Grid{
+func NewDenseGrid(size vec2d.I, generator Generator) *DenseGrid {
+	g := &DenseGrid{
 		Size: size,
 		Data: make([]interface{}, size.Area()),
 	}
@@ -27,18 +27,18 @@ func New(size vec2d.I, generator Generator) *Grid {
 	return g
 }
 
-func (g *Grid) Get(pt vec2d.I) interface{} {
+func (g *DenseGrid) Get(pt vec2d.I) interface{} {
 	return g.Data[g.Size.Idx(pt.Mod(g.Size))]
 }
 
-func (g *Grid) Set(pt vec2d.I, val interface{}) {
+func (g *DenseGrid) Set(pt vec2d.I, val interface{}) {
 	g.Data[g.Size.Idx(pt.Mod(g.Size))] = val
 }
 
-type Processor func(pt vec2d.I, g *Grid) interface{}
+type Processor func(pt vec2d.I, g *DenseGrid) interface{}
 
-func (g *Grid) Process(processor Processor) *Grid {
-	out := &Grid{
+func (g *DenseGrid) Process(processor Processor) *DenseGrid {
+	out := &DenseGrid{
 		Size: g.Size,
 		Data: make([]interface{}, g.Size.Area()),
 	}
@@ -50,7 +50,7 @@ func (g *Grid) Process(processor Processor) *Grid {
 	return out
 }
 
-func (g *Grid) Flood(start vec2d.I, dirs []vec2d.I, include func(pt vec2d.I, g *Grid) bool) []vec2d.I {
+func (g *DenseGrid) Flood(start vec2d.I, dirs []vec2d.I, include func(pt vec2d.I, g *DenseGrid) bool) []vec2d.I {
 	var ret []vec2d.I
 	seen := map[vec2d.I]bool{
 		start: true,

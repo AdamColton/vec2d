@@ -33,7 +33,7 @@ func newDiamondGenerator(startSize vec2d.I, iterations int, noise, noiseDecay fl
 }
 
 // Diamond uses the diamond-square algorithm to generate a height map
-func Diamond(startSize vec2d.I, iterations int, noiseDecay float64) *Grid {
+func Diamond(startSize vec2d.I, iterations int, noiseDecay float64) *DenseGrid {
 	gen := newDiamondGenerator(startSize, iterations, 1.0, noiseDecay)
 
 	// populate the initial points
@@ -49,8 +49,8 @@ func Diamond(startSize vec2d.I, iterations int, noiseDecay float64) *Grid {
 	return g
 }
 
-func (gen *diamondGenerator) getGrid() *Grid {
-	g := &Grid{
+func (gen *diamondGenerator) getGrid() *DenseGrid {
+	g := &DenseGrid{
 		Size: gen.size,
 		Data: make([]interface{}, len(gen.grid)),
 	}
@@ -92,7 +92,7 @@ func (gen *diamondGenerator) point(pt vec2d.I, dirIdx int) {
 
 // Normalize takes a grid of float64 values and normalizes it so the lowest
 // value is 0.0 and the highest is 1.0.
-func Normalize(g *Grid) {
+func Normalize(g *DenseGrid) {
 	min := 1.0
 	max := 0.0
 	for _, vi := range g.Data {
@@ -112,7 +112,7 @@ func Normalize(g *Grid) {
 	}
 }
 
-func Gradient(start *Grid, iterations int) *Grid {
+func Gradient(start *DenseGrid, iterations int) *DenseGrid {
 	gen := newDiamondGenerator(start.Size, iterations, 0, 0)
 
 	// populate the initial points
