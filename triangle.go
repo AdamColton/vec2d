@@ -54,6 +54,7 @@ func (t Triangle) Centroid() F {
 	return t[2].LineTo(midpoint)(2.0 / 3.0)
 }
 
+// F returns a parametric point inside the triangle.
 func (t Triangle) F(t0, t1 float64) F {
 	m := t[0].LineTo(t[1])(0.5)
 	p0 := t[0].LineTo(m)(t0)
