@@ -343,8 +343,10 @@ func RegularPolygonRadius(center F, radius, angle float64, sides int) Polygon {
 }
 
 const (
+	// Tau constant
 	Tau = math.Pi * 2
-	Pi  = math.Pi
+	// Pi constant
+	Pi = math.Pi
 )
 
 var rpclC = math.Sin(Pi/2) / (2)
@@ -432,16 +434,16 @@ func (c ConcavePolygon) F(t0, t1 float64) F {
 }
 
 // Area of the polygon
-func (p ConcavePolygon) Area() float64 { return p.concave.Area() }
+func (c ConcavePolygon) Area() float64 { return c.concave.Area() }
 
 // SignedArea returns the Area and may be negative depending on the polarity.
-func (p ConcavePolygon) SignedArea() float64 { return p.concave.SignedArea() }
+func (c ConcavePolygon) SignedArea() float64 { return c.concave.SignedArea() }
 
 // Perimeter returns the total length of the perimeter
-func (p ConcavePolygon) Perimeter() float64 { return p.concave.Perimeter() }
+func (c ConcavePolygon) Perimeter() float64 { return c.concave.Perimeter() }
 
 // Contains returns true of the point f is inside of the polygon
-func (p ConcavePolygon) Contains(f F) bool { return p.concave.Contains(f) }
+func (c ConcavePolygon) Contains(f F) bool { return c.concave.Contains(f) }
 
 // Centroid returns the center of mass of the polygon
-func (p ConcavePolygon) Centroid() F { return p.concave.Centroid() }
+func (c ConcavePolygon) Centroid() F { return c.concave.Centroid() }
