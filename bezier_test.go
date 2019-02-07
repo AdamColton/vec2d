@@ -37,3 +37,19 @@ func TestBinomialCo(t *testing.T) {
 	assert.Equal(t, 3.0, binomialCo(3, 1))
 	assert.Equal(t, 6.0, binomialCo(4, 2))
 }
+
+func TestNewRelativeCompositeBezier(t *testing.T) {
+	c := NewRelativeCompositeBezier([]CompositeBezierSegment{
+		{{0, 1}, {0, 1}, {1, 0}},
+		{{0, -1}, {0, -1}, {1, 0}},
+	}, IdentityTransformation())
+
+	assert.Equal(t, F{1, -2.25}, c.F(-0.25))
+	assert.Equal(t, F{0, 0}, c.F(0))
+	assert.Equal(t, F{0.5000, 0.7500}, c.F(0.25))
+	assert.Equal(t, F{1, 0}, c.F(0.5))
+	assert.Equal(t, F{1.5, -0.75}, c.F(0.75))
+	assert.Equal(t, F{2, 0}, c.F(1))
+	assert.Equal(t, F{1, 2.25}, c.F(1.25))
+
+}

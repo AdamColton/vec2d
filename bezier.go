@@ -113,3 +113,63 @@ func (bp BezierPath) Points() []F {
 	copy(cp, bp.ps)
 	return cp
 }
+
+// CompositeBezierSegment is a segment of a composite bezier curve where each
+// segment is defined by 4 points. The individual segments are 3 points because
+// the 4th point is taken from the previous segment. The first value is the
+// handle to the previous point, the second value is handle on the end of the
+// segment and the third point the end of the segment.
+type CompositeBezierSegment [3]F
+
+// NewRelativeCompositeBezier defines a curve using relative values. A segment
+// is composed of 3 values, the first 2 are handles and defined relative to the
+// point they are connected to. The 3rd point is the next control point defined
+// relative to the previous control point.
+func NewRelativeCompositeBezier(segments []CompositeBezierSegment, transformation Transformation) CompositeBezier {
+	curves := make([]Curve, len(segments))
+	points := make([][]F, len(segments))
+	var prev F
+	for i, seg := range segments {
+		pts := make([]F, 4)
+		pts[0] = prev
+		pts[1] = seg[0].Add(prev)
+		pts[3] = seg[2].Add(prev)
+		pts[2] = seg[1].Add(pts[3])
+		prev = pts[3]
+		points[i] = transformation.Slice(pts)
+		curves[i] = NewBezierCurve(points[i]...)
+	}
+	return CompositeBezier{
+		CompositeCurve: curves,
+		points:         points,
+	}
+}
+
+type CompositeBezier struct {
+	CompositeCurve
+	points [][]F
+}
+
+type CompositeCurve []Curve
+
+func (cc CompositeCurve) F(t float64) F {
+	ln := len(cc)
+	if ln == 0 {
+		return F{}
+	}
+	if ln == 1 {
+		return cc[0](t)
+	}
+
+	// 4 points = 3 segments 0:2
+	ts := t * float64(ln)
+	ti := int(ts)
+	if ti >= ln {
+		ti = ln - 1
+	} else if ti < 0 {
+		ti = 0
+	}
+	ts -= float64(ti)
+
+	return cc[ti](ts)
+}
