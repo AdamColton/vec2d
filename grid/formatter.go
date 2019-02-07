@@ -5,11 +5,11 @@ import (
 	"fmt"
 )
 
+// Formatter is used to format a grid to a string
 type Formatter struct {
-	Separator string
-	// 0 = left, 1 = right
-	Align    int
-	Stringer func(interface{}) string
+	Separator  string
+	AlignRight bool
+	Stringer   func(interface{}) string
 }
 
 type alignStr func(w int) string
@@ -27,6 +27,7 @@ func defaultStringer(i interface{}) string {
 	return fmt.Sprint(i)
 }
 
+// Format uses the settings of the Formatter to format a grid to a string
 func (f Formatter) Format(g Grid) string {
 	stringer := f.Stringer
 	if stringer == nil {
@@ -43,7 +44,12 @@ func (f Formatter) Format(g Grid) string {
 		}
 	}
 	widthFmt := make([]string, len(widths))
-	a := align[f.Align]
+	var a alignStr
+	if f.AlignRight {
+		a = align[1]
+	} else {
+		a = align[0]
+	}
 	for i, w := range widths {
 		widthFmt[i] = a(w)
 	}

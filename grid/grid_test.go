@@ -4,6 +4,7 @@ import (
 	"github.com/adamcolton/vec2d"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -113,4 +114,16 @@ func TestSparseGrid(t *testing.T) {
 	assert.Len(t, g.Data, 0)
 	assert.Equal(t, 2, g.Get(vec2d.I{1, 2}))
 	assert.Len(t, g.Data, 1)
+}
+
+func TestFormatter(t *testing.T) {
+	f := Formatter{
+		Separator:  " | ",
+		AlignRight: true,
+	}
+	generator := func(pt vec2d.I) interface{} {
+		return pt.Area()
+	}
+	str := f.Format(NewDenseGrid(vec2d.I{10, 10}, generator))
+	assert.Equal(t, 90, strings.Count(str, "|"))
 }
