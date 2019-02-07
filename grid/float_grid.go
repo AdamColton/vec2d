@@ -112,6 +112,7 @@ func Normalize(g *DenseGrid) {
 	}
 }
 
+// Gradient smoothly shades a grid based on the starting grid
 func Gradient(start *DenseGrid, iterations int) *DenseGrid {
 	gen := newDiamondGenerator(start.Size, iterations, 0, 0)
 
