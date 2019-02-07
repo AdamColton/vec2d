@@ -72,7 +72,7 @@ func (i *Iter) Next() bool {
 	return ok
 }
 
-// Pt returns the current point that iterator is on.
+// I returns the current point that iterator is on.
 func (i *Iter) I() vec2d.I {
 	return i.intIter.I()
 }
