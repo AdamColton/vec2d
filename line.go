@@ -108,15 +108,14 @@ func (ls LineSegments) F(t float64) F {
 	if ln == 1 {
 		return ls[0]
 	}
-	if ln == 2 || t < 0 {
-		return ls[0].LineTo(ls[1])(t)
-	}
-	if t >= 1.0 {
-		return ls[ln-2].LineTo(ls[ln-1])(t)
-	}
 
 	// 4 points = 3 segments 0:2
 	ts := t * float64(ln-1)
 	ti := int(ts)
+	if ti > ln-2 {
+		ti = ln - 2
+	} else if ti < 0 {
+		ti = 0
+	}
 	return ls[ti].LineTo(ls[ti+1])(ts - float64(ti))
 }

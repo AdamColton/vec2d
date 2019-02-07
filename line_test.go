@@ -110,6 +110,7 @@ func TestLineSegments(t *testing.T) {
 		F{3, 1},
 		F{4, 0},
 	}
+	assert.Equal(t, F{-0.5, -0.5}, ls.F(-0.125))
 	assert.Equal(t, ls[0], ls.F(0))
 	assert.Equal(t, F{0.5, 0.5}, ls.F(0.125))
 	assert.Equal(t, ls[1], ls.F(0.25))
@@ -119,6 +120,7 @@ func TestLineSegments(t *testing.T) {
 	assert.Equal(t, ls[3], ls.F(0.75))
 	assert.Equal(t, F{3.5, 0.5}, ls.F(0.875))
 	assert.Equal(t, ls[4], ls.F(1))
+	assert.Equal(t, F{4.5, -0.5}, ls.F(1.125))
 
 	ls = LineSegments{
 		F{0, 0},
