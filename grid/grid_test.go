@@ -49,9 +49,9 @@ func TestIter(t *testing.T) {
 	}
 	g := NewDenseGrid(vec2d.I{3, 3}, gen)
 	var f float64
-	iter := IterAll(g, &f)
-	for iter.Next() {
-		assert.Equal(t, gen(iter.Pt()).(float64), f)
+
+	for iter, ok := IterAll(g, &f).Start(); ok; ok = iter.Next() {
+		assert.Equal(t, gen(iter.I()).(float64), f)
 	}
 
 	// interface type matches interface
@@ -60,9 +60,8 @@ func TestIter(t *testing.T) {
 		return &v
 	}
 	g = NewDenseGrid(vec2d.I{3, 3}, gen2)
-	iter = IterAll(g, &f)
-	for iter.Next() {
-		assert.Equal(t, gen(iter.Pt()).(float64), f)
+	for iter, ok := IterAll(g, &f).Start(); ok; ok = iter.Next() {
+		assert.Equal(t, gen(iter.I()).(float64), f)
 	}
 }
 
