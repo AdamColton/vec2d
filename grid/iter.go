@@ -6,15 +6,15 @@ import (
 )
 
 type Iter struct {
-	g              *DenseGrid
+	g              Grid
 	iter           vec2d.IntIterator
 	start, end, pt vec2d.I
-	i              interface{}
+	ref            interface{}
 	t              reflect.Type
 }
 
-func (g *DenseGrid) Iter(start, end vec2d.I, i interface{}) *Iter {
-	t := reflect.TypeOf(i)
+func NewIter(g Grid, start, end vec2d.I, ref interface{}) *Iter {
+	t := reflect.TypeOf(ref)
 	if t.Kind() != reflect.Ptr {
 		panic("Iter requires a pointer")
 	}
@@ -22,14 +22,14 @@ func (g *DenseGrid) Iter(start, end vec2d.I, i interface{}) *Iter {
 	return &Iter{
 		start: start,
 		end:   end,
-		i:     i,
+		ref:   ref,
 		g:     g,
 		t:     t,
 	}
 }
 
-func (g *DenseGrid) IterAll(i interface{}) *Iter {
-	return g.Iter(origin, g.Size, i)
+func IterAll(g Grid, i interface{}) *Iter {
+	return NewIter(g, origin, g.GetSize(), i)
 }
 
 func (i *Iter) Next() bool {
@@ -42,9 +42,9 @@ func (i *Iter) Next() bool {
 	if ok {
 		v := reflect.ValueOf(i.g.Get(i.pt))
 		if v.Type() == i.t {
-			reflect.ValueOf(i.i).Elem().Set(v.Elem())
+			reflect.ValueOf(i.ref).Elem().Set(v.Elem())
 		} else if v.Type() == i.t.Elem() {
-			reflect.ValueOf(i.i).Elem().Set(v)
+			reflect.ValueOf(i.ref).Elem().Set(v)
 		} else {
 			panic("types don't match")
 		}

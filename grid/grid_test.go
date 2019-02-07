@@ -30,7 +30,9 @@ func TestPluralProcessor(t *testing.T) {
 	g := NewDenseGrid(size, generator)
 	proc := PluralProcessor(func(i interface{}) int { return i.(int) })
 	for i := 0; i < 10; i++ {
-		g = g.Process(proc)
+		out := NewDenseGrid(size, nil)
+		Process(g, out, proc)
+		g = out
 	}
 }
 
@@ -47,7 +49,7 @@ func TestIter(t *testing.T) {
 	}
 	g := NewDenseGrid(vec2d.I{3, 3}, gen)
 	var f float64
-	iter := g.IterAll(&f)
+	iter := IterAll(g, &f)
 	for iter.Next() {
 		assert.Equal(t, gen(iter.Pt()).(float64), f)
 	}
@@ -58,7 +60,7 @@ func TestIter(t *testing.T) {
 		return &v
 	}
 	g = NewDenseGrid(vec2d.I{3, 3}, gen2)
-	iter = g.IterAll(&f)
+	iter = IterAll(g, &f)
 	for iter.Next() {
 		assert.Equal(t, gen(iter.Pt()).(float64), f)
 	}
@@ -76,18 +78,27 @@ func TestFlood(t *testing.T) {
 		{0, -1},
 		{0, 1},
 	}
-	pts := g.Flood(origin, ds, func(pt vec2d.I, g *DenseGrid) bool {
+	pts := Flood(g, origin, ds, func(pt vec2d.I, g Grid) bool {
 		return g.Get(pt).(bool)
 	})
 	assert.Len(t, pts, 4)
 
-	pts = g.Flood(vec2d.I{3, 3}, ds, func(pt vec2d.I, g *DenseGrid) bool {
+	pts = Flood(g, vec2d.I{3, 3}, ds, func(pt vec2d.I, g Grid) bool {
 		return g.Get(pt).(bool)
 	})
 	assert.Len(t, pts, 0)
 
-	pts = g.Flood(vec2d.I{3, 3}, ds, func(pt vec2d.I, g *DenseGrid) bool {
+	pts = Flood(g, vec2d.I{3, 3}, ds, func(pt vec2d.I, g Grid) bool {
 		return !g.Get(pt).(bool)
 	})
 	assert.Len(t, pts, 12)
+}
+
+func TestInterface(t *testing.T) {
+	var g Grid
+	generator := func(pt vec2d.I) interface{} {
+		return rand.Intn(9) + 1
+	}
+	g = NewDenseGrid(vec2d.I{10, 10}, generator)
+	assert.NotNil(t, g)
 }

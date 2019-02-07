@@ -9,7 +9,7 @@ import (
 // PluralProcessor returns a Processor that sets each cell to the value with
 // the highest plurality around it
 func PluralProcessor(getInt func(interface{}) int) Processor {
-	return func(pt vec2d.I, g *DenseGrid) interface{} {
+	return func(pt vec2d.I, g Grid) interface{} {
 		counts := make(map[int]int)
 		var bestVal, bestCount int
 		for _, d := range dirs {

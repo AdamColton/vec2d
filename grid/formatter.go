@@ -27,14 +27,15 @@ func defaultStringer(i interface{}) string {
 	return fmt.Sprint(i)
 }
 
-func (f Formatter) Format(g *DenseGrid) string {
+func (f Formatter) Format(g Grid) string {
 	stringer := f.Stringer
 	if stringer == nil {
 		stringer = defaultStringer
 	}
-	widths := make([]int, g.Size.X)
-	strs := make([]string, g.Size.Area())
-	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
+	sz := g.GetSize()
+	widths := make([]int, sz.X)
+	strs := make([]string, sz.Area())
+	for iter, pt, ok := sz.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		s := stringer(g.Get(pt))
 		strs[iter.Idx()] = s
 		if l := len([]rune(s)); l > widths[pt.X] {
@@ -47,7 +48,7 @@ func (f Formatter) Format(g *DenseGrid) string {
 		widthFmt[i] = a(w)
 	}
 	var buf bytes.Buffer
-	for iter, pt, ok := g.Size.FromOrigin().Start(); ok; pt, ok = iter.Next() {
+	for iter, pt, ok := sz.FromOrigin().Start(); ok; pt, ok = iter.Next() {
 		if pt.X == 0 {
 			buf.WriteString("\n")
 		} else {
