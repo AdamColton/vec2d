@@ -15,7 +15,8 @@ type Iter struct {
 	t       reflect.Type
 }
 
-// NewIter will iterate over the sub-grid defined by the points start and end.
+// NewIter will iterate over the grid using the provided IntIterator, updating
+// the ref at each node.
 func NewIter(g Grid, intIter vec2d.IntIterator, ref interface{}) *Iter {
 	t := reflect.TypeOf(ref)
 	if t.Kind() != reflect.Ptr {
@@ -30,6 +31,7 @@ func NewIter(g Grid, intIter vec2d.IntIterator, ref interface{}) *Iter {
 	}
 }
 
+// IterRange will iterate over the sub-grid defined by the points start and end.
 func IterRange(g Grid, start, end vec2d.I, ref interface{}) *Iter {
 	return NewIter(g, start.To(end), ref)
 }
@@ -39,6 +41,7 @@ func IterAll(g Grid, ref interface{}) *Iter {
 	return NewIter(g, g.GetSize().FromOrigin(), ref)
 }
 
+// Start the iterator
 func (i *Iter) Start() (*Iter, bool) {
 	_, pt, ok := i.intIter.Start()
 	if ok {
@@ -79,6 +82,7 @@ func (i *Iter) Idx() int {
 	return i.intIter.Idx()
 }
 
+// Done returns true if the iterator is done
 func (i *Iter) Done() bool {
 	return i.intIter.Done()
 }
