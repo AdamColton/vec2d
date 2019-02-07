@@ -1,5 +1,12 @@
 package vec2d
 
+func IdentityTransformation() Transformation {
+	return Transformation{
+		X: F{1, 0},
+		Y: F{0, 1},
+	}
+}
+
 // Transformation can scale, skew, rotate and translate 2D points.
 type Transformation struct {
 	Translation F
@@ -13,6 +20,14 @@ func (t Transformation) Apply(f F) F {
 		X: f.X*t.X.X + f.Y*t.Y.X + t.Translation.X,
 		Y: f.X*t.X.Y + f.Y*t.Y.Y + t.Translation.Y,
 	}
+}
+
+func (t Transformation) Slice(fs []F) []F {
+	out := make([]F, len(fs))
+	for i, f := range fs {
+		out[i] = t.Apply(f)
+	}
+	return out
 }
 
 /*
