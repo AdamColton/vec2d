@@ -4,6 +4,11 @@ import (
 	"github.com/adamcolton/vec2d"
 )
 
+var origin vec2d.I
+var dirs = vec2d.I{-1, -1}.To(vec2d.I{2, 2}).Slice()
+
+type Generator func(pt vec2d.I) interface{}
+
 type Grid interface {
 	Get(vec2d.I) interface{}
 	Set(vec2d.I, interface{})

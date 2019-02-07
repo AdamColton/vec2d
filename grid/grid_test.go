@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGrid(t *testing.T) {
+func TestDenseGrid(t *testing.T) {
 	size := vec2d.I{10, 10}
 	generator := func(pt vec2d.I) interface{} {
 		return rand.Intn(9) + 1
@@ -101,4 +101,17 @@ func TestInterface(t *testing.T) {
 	}
 	g = NewDenseGrid(vec2d.I{10, 10}, generator)
 	assert.NotNil(t, g)
+}
+
+func TestSparseGrid(t *testing.T) {
+	size := vec2d.I{10, 10}
+	generator := func(pt vec2d.I) interface{} {
+		return pt.Area()
+	}
+	g := NewSparseGrid(size, generator)
+	var _ Grid = g
+	assert.NotNil(t, g)
+	assert.Len(t, g.Data, 0)
+	assert.Equal(t, 2, g.Get(vec2d.I{1, 2}))
+	assert.Len(t, g.Data, 1)
 }
