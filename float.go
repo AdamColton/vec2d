@@ -66,9 +66,14 @@ func (f F) Angle() float64 {
 	return math.Atan2(f.Y, f.X)
 }
 
+// Mag2 Returns the sqaure of the magnatude of the vector.
+func (f F) Mag2() float64 {
+	return f.X*f.X + f.Y*f.Y
+}
+
 // Mag returns the magnitude (distance to origin) of the vector
 func (f F) Mag() float64 {
-	return math.Sqrt(f.X*f.X + f.Y*f.Y)
+	return math.Sqrt(f.Mag2())
 }
 
 // Rotate returns a new Vector rotated by r radians
