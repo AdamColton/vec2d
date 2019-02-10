@@ -1,5 +1,7 @@
 package vec2d
 
+// IdentityTransformation returns a transformation that when applied will have
+// no effect on the vector.
 func IdentityTransformation() Transformation {
 	return Transformation{
 		X: F{1, 0},
@@ -22,6 +24,7 @@ func (t Transformation) Apply(f F) F {
 	}
 }
 
+// Slice applies the transformation to a slice of vectors.
 func (t Transformation) Slice(fs []F) []F {
 	out := make([]F, len(fs))
 	for i, f := range fs {

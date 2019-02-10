@@ -145,13 +145,17 @@ func NewRelativeCompositeBezier(segments []CompositeBezierSegment, transformatio
 	}
 }
 
+// CompositeBezier with each segment being a quadratic Bezier curve.
 type CompositeBezier struct {
 	CompositeCurve
 	points [][]F
 }
 
+// CompositeCurve stitches multiple curves together into a single parametric
+// curve.
 type CompositeCurve []Curve
 
+// F returns a parametric point along the curve.
 func (cc CompositeCurve) F(t float64) F {
 	ln := len(cc)
 	if ln == 0 {
