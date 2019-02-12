@@ -69,3 +69,25 @@ func (t Triangle) CircumscribedCircle() Circle {
 	r := t[0].Distance(c)
 	return NewCircle(c, r)
 }
+
+// InscribeCircle returns a circlue whose perimeter touches each side of the
+// triangle in exactly one place
+func (t Triangle) InscribeCircle() Circle {
+	ab := t[1].Subtract(t[0]).P()
+	ac := t[2].Subtract(t[0]).P()
+	p1 := P{100, (ab.A + ac.A) / 2}
+	l1 := t[0].LineTo(t[0].Add(p1.F()))
+
+	bc := t[2].Subtract(t[1]).P()
+	ba := t[0].Subtract(t[1]).P()
+	p2 := P{100, (bc.A + ba.A) / 2}
+	l2 := t[1].LineTo(t[1].Add(p2.F()))
+
+	l3 := t[1].LineTo(t[2])
+
+	tc, _ := l1.Intersection(l2)
+	c := l1(tc)
+	tr, _ := l1.Intersection(l3)
+	r := c.Distance(l1(tr))
+	return NewCircle(c, r)
+}

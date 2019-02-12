@@ -2,6 +2,8 @@ package vec2d
 
 import (
 	"math"
+	"strconv"
+	"strings"
 )
 
 // P represents a polar coordinate defined by a magnitude and angle (in radians)
@@ -23,6 +25,16 @@ func (p P) Add(p2 P) P {
 // Subtract returns p + p2
 func (p P) Subtract(p2 P) P {
 	return p.F().Subtract(p2.F()).P()
+}
+
+func (p P) String() string {
+	return strings.Join([]string{
+		"(",
+		strconv.FormatFloat(p.M, 'f', Prec, 64),
+		", ",
+		strconv.FormatFloat(p.A, 'f', Prec, 64),
+		" rad )",
+	}, "")
 }
 
 const deg2rad = Pi / 180
